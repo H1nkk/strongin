@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36623.8 d17.14
+VisualStudioVersion = 17.14.36623.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "strongin-base", "strongin-base\strongin-base.vcxproj", "{B5928FE5-B7EE-4166-9D0C-A2ADD1D00C69}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "strongin-pqueue", "strongin-pqueue\strongin-pqueue.vcxproj", "{BBA5C690-6F41-48E2-8B84-0AF1D929D9A0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "strongin-vectoroptimized", "strongin-vectoroptimized\strongin-vectoroptimized.vcxproj", "{73BB018D-ABA4-49DF-8BF9-60EFA14AFE95}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "strongin-pqlimitedsz", "strongin-pqlimitedsz\strongin-pqlimitedsz.vcxproj", "{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{73BB018D-ABA4-49DF-8BF9-60EFA14AFE95}.Release|x64.Build.0 = Release|x64
 		{73BB018D-ABA4-49DF-8BF9-60EFA14AFE95}.Release|x86.ActiveCfg = Release|Win32
 		{73BB018D-ABA4-49DF-8BF9-60EFA14AFE95}.Release|x86.Build.0 = Release|Win32
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Debug|x64.ActiveCfg = Debug|x64
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Debug|x64.Build.0 = Debug|x64
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Debug|x86.ActiveCfg = Debug|Win32
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Debug|x86.Build.0 = Debug|Win32
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Release|x64.ActiveCfg = Release|x64
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Release|x64.Build.0 = Release|x64
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Release|x86.ActiveCfg = Release|Win32
+		{4BD75A88-CCAA-467B-AEB0-7072AC0865A6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

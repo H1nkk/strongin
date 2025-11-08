@@ -1,8 +1,7 @@
 from prettytable import PrettyTable
 import os, time, subprocess
 
-
-algorithmVariants = ["vectoroptimized", "dllist", "map", "pqueue"]
+algorithmVariants = ["vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz"]
 
 
 """def fillFiles():
@@ -22,11 +21,19 @@ algorithmVariants = ["vectoroptimized", "dllist", "map", "pqueue"]
 
 def showAGPResult():
     variant = algorithmVariants[0]
+    inaccurateVariant = algorithmVariants[4]
     for funcNumber in range(1, 11):
         print(f"    Function {funcNumber}")
         file = open("strongin-" + variant + "/" + variant + "-Function" + str(funcNumber) + "-res.txt")
+        inaccurateFile = open("strongin-" + inaccurateVariant + "/" + inaccurateVariant + "-Function" + str(funcNumber) + "-res.txt")
         for i in range(5):
-            print(file.readline(), end="")
+            print(file.readline()[:-1], end=" ")
+            if i != 1:
+                print(", inaccurate: " + inaccurateFile.readline().split()[1])
+            else:
+                inaccurateFile.readline()
+                print()
+
         print()
 
 
