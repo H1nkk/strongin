@@ -314,7 +314,7 @@ void benchTimeTests() {
 		cout << '\n';
 		cout << flush;
 
-		ofstream outfile("dllist-Function" + to_string(i + 1) + "-res.txt");
+		ofstream outfile("test-results/dllist-Function" + to_string(i + 1) + "-res.txt");
 		outfile << "AGP-result: " << res.extremumArg << '\n';
 		outfile << "Actual-result: " << extremums[funcs[i]] << '\n';
 		outfile << "Difference-in-results: " << fabs(res.extremumArg - extremums[funcs[i]]) << '\n';

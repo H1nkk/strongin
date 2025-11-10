@@ -3,12 +3,10 @@
 
 template<typename T>
 class pqueue {
-	dheaplimited<T> heap = dheaplimited<T>(2, 0);
+	dheaplimited<T> heap;
 
 public:
-	pqueue(size_t limit) {
-		heap = dheaplimited<T>(2, 0, limit);
-	}
+	pqueue(size_t limit): heap(2,0,limit) { }
 
 	void insert(T el) {
 		heap.insert(el);

@@ -215,11 +215,11 @@ info AGP(double a, double b, double (*func)(double x)) {
 	}
 
 	// RtoArgs добавляет много накладных расходов!
-	map<double, double> RtoArg; // в RtoArg[curR] хранится аргумент x, с которого начинается отрезок для характеристикой R = curR
+	multimap<double, double> RtoArg; // в RtoArg[curR] хранится аргумент x, с которого начинается отрезок для характеристикой R = curR
 	double firstR = m * (b - a);
 	firstR += (rightFuncVal - leftFuncVal) * (rightFuncVal - leftFuncVal) / (m * (b - a));
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
-	RtoArg[firstR] = a;
+	RtoArg.insert(make_pair(firstR, a));
 
 	double Rmax = firstR;
 	int Rmaxindex = 0;
@@ -227,7 +227,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 	int iteration;
 	for (iteration = 0; iteration < ITERMAX; iteration++) {
 		// Добавление новой точки
-		double ldot = RtoArg[Rmax]; // левая граница подразбиваемого интервала
+		double ldot = RtoArg.find(Rmax)->second; // левая граница подразбиваемого интервала
 		double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
 		double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
 		funcValue[newDot] = func(newDot);
@@ -236,7 +236,6 @@ info AGP(double a, double b, double (*func)(double x)) {
 			break;
 
 		// Пересчет M для нового интервала
-		ldot = RtoArg[Rmax];
 		double mdot = (*next(funcValue.find(ldot))).first;
 		rdot = (*next(funcValue.find(mdot))).first;
 		double Mcandidate1 = fabs((funcValue[mdot] - (funcValue[ldot])) / (mdot - ldot));
@@ -261,7 +260,8 @@ info AGP(double a, double b, double (*func)(double x)) {
 				double newR = m * (rdot - ldot)
 					+ (rval - lval) * (rval - lval) / (m * (rdot - ldot))
 					- 2 * (rval - lval);
-				RtoArg[newR] = ldot;
+				//RtoArg[newR] = ldot;
+				RtoArg.insert(make_pair(newR, ldot));
 				prev = next(prev);
 				cur = next(cur);
 			}
@@ -270,7 +270,8 @@ info AGP(double a, double b, double (*func)(double x)) {
 		else {
 
 			Rmax = (*prev(RtoArg.end())).first;
-			double lArg = RtoArg[Rmax]; // аргумент, для которого будем пересчитывать R
+			//double lArg = RtoArg[Rmax]; // аргумент, для которого будем пересчитывать R
+			double lArg = RtoArg.find(Rmax)->second; // аргумент, для которого будем пересчитывать R
 			double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
 			double rArg = (*next(funcValue.find(newDot))).first; // правая граница нового интервала
 
@@ -287,8 +288,9 @@ info AGP(double a, double b, double (*func)(double x)) {
 				+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * (rArg - mArg))
 				- 2 * (funcValue[rArg] - funcValue[mArg]);
 
-			RtoArg[newR1] = lArg;
-			RtoArg[newR2] = mArg;
+			//RtoArg[newR1] = lArg;
+			RtoArg.insert(make_pair(newR1, lArg));
+			RtoArg.insert(make_pair(newR2, mArg));
 		}
 
 		prevm = m;
@@ -451,7 +453,7 @@ void benchTimeTests() {
 		cout << '\n';
 		cout << flush;
 
-		ofstream outfile("map-Function" + to_string(i + 1) + "-res.txt");
+		ofstream outfile("test-results/map-Function" + to_string(i + 1) + "-res.txt");
 		outfile << "AGP-result: " << res.extremumArg << '\n';
 		outfile << "Actual-result: " << extremums[funcs[i]] << '\n';
 		outfile << "Difference-in-results: " << fabs(res.extremumArg - extremums[funcs[i]]) << '\n';

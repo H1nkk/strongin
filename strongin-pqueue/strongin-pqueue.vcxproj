@@ -24,6 +24,7 @@
     <ProjectGuid>{bba5c690-6f41-48e2-8b84-0af1d929d9a0}</ProjectGuid>
     <RootNamespace>stronginpqueue</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>strongin-pqueue</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
