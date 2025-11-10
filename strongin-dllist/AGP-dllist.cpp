@@ -25,8 +25,8 @@ vector<double (*)(double)> funcs;
 struct info {
 	double extremumArg; // значение точки экстремума
 	double extremumVal; // значение функции в точке экстремума
-	int iterCount; // число совершенных итераций
-	info(double extremumArg, double  extremumVal, int iterCount) : extremumArg(extremumArg), extremumVal(extremumVal), iterCount(iterCount) {}
+	size_t iterCount; // число совершенных итераций
+	info(double extremumArg, double  extremumVal, size_t iterCount) : extremumArg(extremumArg), extremumVal(extremumVal), iterCount(iterCount) {}
 };
 
 double funcSlower(double x) {
@@ -289,7 +289,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 		}
 	}
 
-	info res = { resArg, funcMin, iteration };
+	info res = { resArg, funcMin, size_t(dots.size() - 2)};
 	return res;
 }
 

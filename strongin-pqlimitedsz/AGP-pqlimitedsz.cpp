@@ -13,7 +13,7 @@ using namespace std;
 
 double r = 2.0; // method parameter
 const double E = 1e-3; // epsilon
-const size_t pqueueLimit = 40;
+size_t pqueueLimit;
 int ITERMAX;
 int TIMEMEASUREITERS;
 int SLOWINGITERS;
@@ -26,8 +26,8 @@ vector<double (*)(double)> funcs;
 struct info {
 	double extremumArg; // значение точки экстремума
 	double extremumVal; // значение функции в точке экстремума
-	int iterCount; // число совершенных итераций
-	info(double extremumArg, double  extremumVal, int iterCount) : extremumArg(extremumArg), extremumVal(extremumVal), iterCount(iterCount) {}
+	size_t iterCount; // число совершенных итераций
+	info(double extremumArg, double  extremumVal, size_t iterCount) : extremumArg(extremumArg), extremumVal(extremumVal), iterCount(iterCount) {}
 };
 
 struct dotInfo {
@@ -168,6 +168,7 @@ void init() {
 			infile >> SLOWINGITERS;
 		}
 	}
+	pqueueLimit = ITERMAX / 2;
 
 	extremums[becnhFunc1] = 5.145735;
 	leftBound[becnhFunc1] = 2.7;
@@ -246,7 +247,6 @@ info AGP(double a, double b, double (*func)(double x)) {
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
 	Rqueue.insert({ firstR, a });
 
-
 	int iteration;
 	for (iteration = 1; iteration <= ITERMAX; iteration++) {
 		// Добавление новой точки
@@ -299,7 +299,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 
 			double RToRecalculate1 = m * (rArg - lArg)
 				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
-				- 2 * (funcValue[rArg] - funcValue[lArg]);
+				- 2 * (funcValue[rArg] - funcValue[lArg]); // = Rmax
 
 			Rqueue.pop();
 
@@ -325,7 +325,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 			extrArg = p.first;
 		}
 	}
-	info res = { extrArg, funcMin, iteration };
+	info res = { extrArg, funcMin, funcValue.size() - 2 };
 	return res;
 }
 
