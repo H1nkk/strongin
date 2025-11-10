@@ -216,7 +216,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 	double prevm = m;
 
 	int iteration;
-	for (iteration = 0; iteration < ITERMAX; iteration++) {
+	for (iteration = 1; iteration <= ITERMAX; iteration++) {
 
 		double rdot = dots[Rmaxindex + 1]; // правая граница подразбиваемого интервала
 		double ldot = dots[Rmaxindex]; // левая граница подразбиваемого интервала

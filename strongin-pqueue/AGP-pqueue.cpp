@@ -247,7 +247,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 
 
 	int iteration;
-	for (iteration = 0; iteration < ITERMAX; iteration++) {
+	for (iteration = 1; iteration <= ITERMAX; iteration++) {
 		// Добавление новой точки
 		RInfo maxInfo = Rqueue.get();
 		double ldot = maxInfo.arg; // левая граница подразбиваемого интервала

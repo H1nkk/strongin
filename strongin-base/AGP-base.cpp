@@ -201,7 +201,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 	sort(dots.begin(), dots.end());
 
 	int iteration;
-	for (iteration = 0; iteration < ITERMAX; iteration++) {
+	for (iteration = 1; iteration <= ITERMAX; iteration++) {
 
 		int dotsCount = dots.size();
 
@@ -282,7 +282,7 @@ void benchTimeTests() {
 		cout << '\n';
 		cout << flush;
 
-		ofstream outfile("base-Function" + to_string(i + 1) + "-res.txt");
+		ofstream outfile("test-results/base-Function" + to_string(i + 1) + "-res.txt");
 		outfile << "AGP-result: " << res.extremumArg << '\n';
 		outfile << "Actual-result: " << extremums[funcs[i]] << '\n';
 		outfile << "Difference-in-results: " << fabs(res.extremumArg - extremums[funcs[i]]) << '\n';

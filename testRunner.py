@@ -1,7 +1,9 @@
-import os, time, subprocess
+import os, datetime, subprocess
 
 algorithmVariants = ["vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz"]
-
+file = open("testing-properties.txt")
+if int(file.readlines()[2].split()[1]) <= 10:
+    algorithmVariants.append("base")
 
 def buildProjects():
     os.system("chcp 65001")
@@ -39,3 +41,6 @@ def fillFiles():
 
 buildProjects()
 fillFiles()
+
+now = datetime.datetime.now()
+print("Ended at ", now)

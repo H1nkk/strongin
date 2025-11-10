@@ -1,6 +1,9 @@
 from prettytable import PrettyTable
 
 algorithmVariants = ["vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz"]
+file = open("testing-properties.txt")
+if int(file.readlines()[2].split()[1]) <= 10:
+    algorithmVariants.append("base")
 funcCount = 10
 
 
@@ -50,23 +53,16 @@ def checkResults():
 
             table.add_row(row)
         print(table)
+        print()
 
 
 def showAGPResult():
     variant = algorithmVariants[0]
-    inaccurateVariant = algorithmVariants[4]
     for funcNumber in range(1, funcCount + 1):
         print(f"    Function {funcNumber}")
         file = open("strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
-        inaccurateFile = open("strongin-" + inaccurateVariant + "/test-results/" + inaccurateVariant + "-Function" + str(funcNumber) + "-res.txt")
         for i in range(5):
-            print(file.readline()[:-1], end=" ")
-            if i != 1:
-                print(", inaccurate: " + inaccurateFile.readline().split()[1])
-            else:
-                inaccurateFile.readline()
-                print()
-
+            print(file.readline()[:-1])
         print()
 
 
@@ -78,7 +74,12 @@ def showTable():
     table = PrettyTable(headers)
 
     for variant in algorithmVariants:
-        row = [variant]
+        if variant == "pqueue":
+            row = ["pqueue+map"]
+        elif variant == "pqlimitedsz":
+            row = ["pqueuelimited+map"]
+        else:
+            row = [variant]
         for funcNumber in range(1, funcCount + 1):
 
             file = open("strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
@@ -90,6 +91,7 @@ def showTable():
             row.append(timeSpent)
         table.add_row(row)
 
+    print("Minimum-calculating-time:")
     print(table)
 
 
