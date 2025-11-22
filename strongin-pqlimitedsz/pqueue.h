@@ -2,11 +2,11 @@
 #include "dheap.h"
 
 template<typename T>
-class pqueue_limited_map {
-	dheaplimited_map <T> heap;
+class pqueue_limited_multimap {
+	dheaplimited_multimap<T> heap;
 
 public:
-	pqueue_limited_map(size_t limit) : heap(2, 0, limit) {}
+	pqueue_limited_multimap(size_t limit) : heap(2, 0, limit) {}
 
 	void insert(T el) {
 		heap.insert(el);
