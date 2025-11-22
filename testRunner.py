@@ -33,14 +33,19 @@ def fillFiles():
     os.system("chcp 65001")
 
     for variant in algorithmVariants:
+        print("############################")
+        print(f"Running {variant}")
         command = "cd strongin-" + variant + " && "
         command += "\"x64/Release/strongin-" + variant + ".exe\""
 
         process = subprocess.run(command, shell=True)
 
 
-buildProjects()
+now = datetime.datetime.now()
+
+# buildProjects()
+print("Started at", now)
 fillFiles()
 
 now = datetime.datetime.now()
-print("Ended at ", now)
+print("Ended at", now)

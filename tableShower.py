@@ -74,10 +74,12 @@ def showTable():
     table = PrettyTable(headers)
 
     for variant in algorithmVariants:
-        if variant == "pqueue":
-            row = ["pqueue+map"]
+        if variant == "map":
+            row = ["map + multimap"]
+        elif variant == "pqueue":
+            row = ["pqueue + map"]
         elif variant == "pqlimitedsz":
-            row = ["pqueuelimited+map"]
+            row = ["pqueuelimited + map"]
         else:
             row = [variant]
         for funcNumber in range(1, funcCount + 1):
