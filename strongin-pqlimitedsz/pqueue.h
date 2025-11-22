@@ -3,7 +3,7 @@
 
 template<typename T>
 class pqueue {
-	dheaplimited<T> heap;
+	dheaplimited_multimap<T> heap;
 
 public:
 	pqueue(size_t limit): heap(2,0,limit) { }

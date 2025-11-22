@@ -12,7 +12,7 @@
 using namespace std;
 
 double r = 2.0; // method parameter
-const double E = 1e-3; // epsilon
+double E; // epsilon
 int ITERMAX;
 int TIMEMEASUREITERS;
 int SLOWINGITERS;
@@ -126,7 +126,7 @@ double becnhFunc10(double x) {
 
 void init() {
 	ifstream infile("../testing-properties.txt");
-	for (int consts = 0; consts < 3; consts++) {
+	for (int consts = 0; consts < 4; consts++) {
 		string s;
 		infile >> s;
 		if (s == "ITERMAX") {
@@ -137,6 +137,9 @@ void init() {
 		}
 		else if (s == "SLOWINGITERS") {
 			infile >> SLOWINGITERS;
+		}
+		else if (s == "EPSILON") {
+			infile >> E;
 		}
 	}
 

@@ -1,5 +1,5 @@
-AGP-result: 0.226734
+AGP-result: 0.224879
 Actual-result: 0.224885
-Difference-in-results: 0.00184866
-Iterations-count: 784
-Minimum-calculating-time: 0.833413
+Difference-in-results: 6.40702e-06
+Iterations-count: 5000
+Minimum-calculating-time: 0.056953

@@ -55,6 +55,9 @@ def checkResults():
         print(table)
         print()
 
+    if notOk:
+        print("An error has occurred!")
+
 
 def showAGPResult():
     variant = algorithmVariants[0]
@@ -93,11 +96,11 @@ def showTable():
             row.append(timeSpent)
         table.add_row(row)
 
-    print("Minimum-calculating-time:")
+    print("Minimum-calculating-time table:")
     print(table)
 
 
-checkResults()
 showAGPResult()
 showTable()
+checkResults()
 
