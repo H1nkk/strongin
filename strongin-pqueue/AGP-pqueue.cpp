@@ -154,9 +154,8 @@ double becnhFunc10(double x) {
 
 void init() {
 	ifstream infile("../testing-properties.txt");
-	for (int consts = 0; consts < 4; consts++) {
-		string s;
-		infile >> s;
+	string s;
+	while (infile >> s)  {
 		if (s == "ITERMAX") {
 			infile >> ITERMAX;
 		}
@@ -168,6 +167,10 @@ void init() {
 		}
 		else if (s == "EPSILON") {
 			infile >> E;
+		}
+		else {
+			double foo;
+			infile >> foo;
 		}
 	}
 

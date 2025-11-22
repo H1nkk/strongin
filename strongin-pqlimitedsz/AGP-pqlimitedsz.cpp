@@ -155,9 +155,8 @@ double becnhFunc10(double x) {
 
 void init() {
 	ifstream infile("../testing-properties.txt");
-	for (int consts = 0; consts < 4; consts++) {
-		string s;
-		infile >> s;
+	string s;
+	while (infile >> s) {
 		if (s == "ITERMAX") {
 			infile >> ITERMAX;
 		}
@@ -169,6 +168,10 @@ void init() {
 		}
 		else if (s == "EPSILON") {
 			infile >> E;
+		}
+		else {
+			double foo;
+			infile >> foo;
 		}
 	}
 	pqueueLimit = ITERMAX / 2;
@@ -243,17 +246,24 @@ info AGP(double a, double b, double (*func)(double x)) {
 		m = 1;
 	}
 
-	pqueue<RInfo> Rqueue(pqueueLimit);
+	pqueue_limited_linear<RInfo> Rqueue(pqueueLimit);
+	pqueue<RInfo> Rqueue_unlim;
 
 	double firstR = m * (b - a);
 	firstR += (rightFuncVal - leftFuncVal) * (rightFuncVal - leftFuncVal) / (m * (b - a));
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
 	Rqueue.insert({ firstR, a });
+	Rqueue_unlim.insert({ firstR, a });
 
 	int iteration;
 	for (iteration = 1; iteration <= ITERMAX; iteration++) {
 		// Добавление новой точки
 		RInfo maxInfo = Rqueue.get();
+		RInfo maxInfo_unlim = Rqueue_unlim.get();
+
+		if (maxInfo != maxInfo_unlim) {
+			cout << "unasdf";
+		}
 		double ldot = maxInfo.arg; // левая граница подразбиваемого интервала
 		double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
 		double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
@@ -282,6 +292,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 			auto cur = next(funcValue.begin());
 
 			Rqueue.clear();
+			Rqueue_unlim.clear();
 			for (int i = 0; i < funcValue.size() - 1; i++) {
 				double ldot = (*prev).first, rdot = (*cur).first;
 				double lval = funcValue[ldot], rval = funcValue[rdot];
@@ -289,6 +300,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 					+ (rval - lval) * (rval - lval) / (m * (rdot - ldot))
 					- 2 * (rval - lval);
 				Rqueue.insert({ newR, ldot });
+				Rqueue_unlim.insert({ newR, ldot });
 				prev = next(prev);
 				cur = next(cur);
 			}
@@ -305,6 +317,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 				- 2 * (funcValue[rArg] - funcValue[lArg]); // = Rmax
 
 			Rqueue.pop();
+			Rqueue_unlim.pop();
 
 			double newR1 = m * (mArg - lArg)
 				+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * (mArg - lArg))
@@ -315,6 +328,9 @@ info AGP(double a, double b, double (*func)(double x)) {
 
 			Rqueue.insert({ newR1, lArg });
 			Rqueue.insert({ newR2, mArg });
+
+			Rqueue_unlim.insert({ newR1, lArg });
+			Rqueue_unlim.insert({ newR2, mArg });
 		}
 
 		prevm = m;
@@ -331,6 +347,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 	info res = { extrArg, funcMin, funcValue.size() - 2 };
 	return res;
 }
+
 
 void benchTimeTests() {
 	for (int i = funcs.size() - 1; i >= 0; i--) {

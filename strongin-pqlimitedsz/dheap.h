@@ -66,21 +66,12 @@ public:
             T mn = mem[0];
             int mnind = 0;
             for (int i = 1; i < size; i++) {
-                if (mn <= mem[i]) {
+                if (mn > mem[i]) {
                     mn = mem[i];
                     mnind = i;
                 }
             }
             erase(mn);
-            //swap(mem[mnind], mem[size - 1]);
-            //size--;
-            //if ((mnind != 0) && (mem[mnind] > mem[(mnind - 1) / d])) {
-            //    ascend(mnind);
-            //}
-            //else {
-            //    descend(mnind);
-            //}
-
         }
         if (size == mem.size()) {
             mem.resize(size + pow(d, ++height));
