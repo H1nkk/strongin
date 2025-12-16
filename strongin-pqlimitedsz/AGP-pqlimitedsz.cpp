@@ -67,7 +67,7 @@ double funcSlower(double x) {
 	return k;
 }
 
-double becnhFunc1(double x) {
+double benchFunc1(double x) {
 	double k = funcSlower(x);
 	double res = sin(x) + sin(10.0 * x / 3.0);
 
@@ -75,7 +75,7 @@ double becnhFunc1(double x) {
 	return res;
 }
 
-double becnhFunc2(double x) {
+double benchFunc2(double x) {
 	double k = funcSlower(x);
 	double res = 0;
 	for (double k = 1.0; k <= 5.0; k += 1.0) {
@@ -87,7 +87,7 @@ double becnhFunc2(double x) {
 	return res;
 }
 
-double becnhFunc3(double x) {
+double benchFunc3(double x) {
 	double k = funcSlower(x);
 	double res = (3.0 * x - 1.4) * sin(18.0 * x);
 
@@ -95,7 +95,7 @@ double becnhFunc3(double x) {
 	return res;
 }
 
-double becnhFunc4(double x) {
+double benchFunc4(double x) {
 	double k = funcSlower(x);
 	double res = -(x + sin(x));
 	res *= exp(-(x * x));
@@ -104,7 +104,7 @@ double becnhFunc4(double x) {
 	return res;
 }
 
-double becnhFunc5(double x) {
+double benchFunc5(double x) {
 	double k = funcSlower(x);
 	double res = sin(x) + sin(10.0 * x / 3.0) + log(x) - 0.84 * x + 3.0;
 
@@ -112,7 +112,7 @@ double becnhFunc5(double x) {
 	return res;
 }
 
-double becnhFunc6(double x) {
+double benchFunc6(double x) {
 	double k = funcSlower(x);
 	double res = sin(x) + sin(10.0 * x / 3.0) + log(x) - 0.84 * x + 3.0;
 
@@ -120,7 +120,7 @@ double becnhFunc6(double x) {
 	return res;
 }
 
-double becnhFunc7(double x) {
+double benchFunc7(double x) {
 	double k = funcSlower(x);
 	double res = -sin(2 * numbers::pi_v<double> *x) * exp(-x);
 
@@ -128,7 +128,7 @@ double becnhFunc7(double x) {
 	return res;
 }
 
-double becnhFunc8(double x) {
+double benchFunc8(double x) {
 	double k = funcSlower(x);
 	double res = (x * x - 5.0 * x + 6.0);
 	res /= (x * x + 1.0);
@@ -137,7 +137,7 @@ double becnhFunc8(double x) {
 	return res;
 }
 
-double becnhFunc9(double x) {
+double benchFunc9(double x) {
 	double k = funcSlower(x);
 	double res = -x + sin(3.0 * x) - 1.0;
 
@@ -145,7 +145,7 @@ double becnhFunc9(double x) {
 	return res;
 }
 
-double becnhFunc10(double x) {
+double benchFunc10(double x) {
 	double k = funcSlower(x);
 	double res = 2.0 * (x - 3.0) * (x - 3.0) + exp(x * x * 0.5);
 
@@ -176,55 +176,55 @@ void init() {
 	}
 	pqueueLimit = ITERMAX / 2;
 
-	extremums[becnhFunc1] = 5.145735;
-	leftBound[becnhFunc1] = 2.7;
-	rightBound[becnhFunc1] = 7.5;
-	funcs.push_back(becnhFunc1);
+	extremums[benchFunc1] = 5.145735;
+	leftBound[benchFunc1] = 2.7;
+	rightBound[benchFunc1] = 7.5;
+	funcs.push_back(benchFunc1);
 
-	extremums[becnhFunc2] = 5.791785; // тут несколько экстремумов
-	leftBound[becnhFunc2] = 0.0;
-	rightBound[becnhFunc2] = 10.0;
-	funcs.push_back(becnhFunc2);
+	extremums[benchFunc2] = 5.791785; // тут несколько экстремумов
+	leftBound[benchFunc2] = 0.0;
+	rightBound[benchFunc2] = 10.0;
+	funcs.push_back(benchFunc2);
 
-	extremums[becnhFunc3] = 0.96609;
-	leftBound[becnhFunc3] = 0;
-	rightBound[becnhFunc3] = 1.2;
-	funcs.push_back(becnhFunc3);
+	extremums[benchFunc3] = 0.96609;
+	leftBound[benchFunc3] = 0;
+	rightBound[benchFunc3] = 1.2;
+	funcs.push_back(benchFunc3);
 
-	extremums[becnhFunc4] = 0.679560;
-	leftBound[becnhFunc4] = -10;
-	rightBound[becnhFunc4] = 10;
-	funcs.push_back(becnhFunc4);
+	extremums[benchFunc4] = 0.679560;
+	leftBound[benchFunc4] = -10;
+	rightBound[benchFunc4] = 10;
+	funcs.push_back(benchFunc4);
 
-	extremums[becnhFunc5] = 5.19978;
-	leftBound[becnhFunc5] = 2.7;
-	rightBound[becnhFunc5] = 7.5;
-	funcs.push_back(becnhFunc5);
+	extremums[benchFunc5] = 5.19978;
+	leftBound[benchFunc5] = 2.7;
+	rightBound[benchFunc5] = 7.5;
+	funcs.push_back(benchFunc5);
 
-	extremums[becnhFunc6] = 5.19978;
-	leftBound[becnhFunc6] = 2.7;
-	rightBound[becnhFunc6] = 7.5;
-	funcs.push_back(becnhFunc6);
+	extremums[benchFunc6] = 5.19978;
+	leftBound[benchFunc6] = 2.7;
+	rightBound[benchFunc6] = 7.5;
+	funcs.push_back(benchFunc6);
 
-	extremums[becnhFunc7] = 0.224885;
-	leftBound[becnhFunc7] = 0;
-	rightBound[becnhFunc7] = 4;
-	funcs.push_back(becnhFunc7);
+	extremums[benchFunc7] = 0.224885;
+	leftBound[benchFunc7] = 0;
+	rightBound[benchFunc7] = 4;
+	funcs.push_back(benchFunc7);
 
-	extremums[becnhFunc8] = 2.41420;
-	leftBound[becnhFunc8] = -5;
-	rightBound[becnhFunc8] = 5;
-	funcs.push_back(becnhFunc8);
+	extremums[benchFunc8] = 2.41420;
+	leftBound[benchFunc8] = -5;
+	rightBound[benchFunc8] = 5;
+	funcs.push_back(benchFunc8);
 
-	extremums[becnhFunc9] = 5.877287;
-	leftBound[becnhFunc9] = 0;
-	rightBound[becnhFunc9] = 6.5;
-	funcs.push_back(becnhFunc9);
+	extremums[benchFunc9] = 5.877287;
+	leftBound[benchFunc9] = 0;
+	rightBound[benchFunc9] = 6.5;
+	funcs.push_back(benchFunc9);
 
-	extremums[becnhFunc10] = 1.590700;
-	leftBound[becnhFunc10] = -3;
-	rightBound[becnhFunc10] = 3;
-	funcs.push_back(becnhFunc10);
+	extremums[benchFunc10] = 1.590700;
+	leftBound[benchFunc10] = -3;
+	rightBound[benchFunc10] = 3;
+	funcs.push_back(benchFunc10);
 }
 
 info AGP(double a, double b, double (*func)(double x)) {

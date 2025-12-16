@@ -43,7 +43,7 @@ def fillFiles():
 
 now = datetime.datetime.now()
 
-buildProjects()
+# buildProjects()
 print("Started at", now)
 fillFiles()
 

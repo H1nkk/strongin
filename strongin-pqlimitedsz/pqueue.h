@@ -1,9 +1,10 @@
 #pragma once
 #include "dheap.h"
+#include <cstddef>
 
 template<typename T>
 class pqueue_limited_map {
-	dheaplimited_map <T> heap;
+	dheaplimited_multimap<T> heap;
 
 public:
 	pqueue_limited_map(size_t limit) : heap(2, 0, limit) {}
