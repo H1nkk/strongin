@@ -11,8 +11,7 @@ def buildProjects():
     for variant in algorithmVariants:
         vcxproj_path = os.path.join(f"strongin-{variant}/strongin-{variant}.vcxproj")
         print(f"Building {variant}")
-
-        command = f"\"D:\VisualStudio\Common7\Tools\VsDevCmd.bat\" && msbuild strongin-{variant}/strongin-{variant}.vcxproj /p:Configuration=Release /p:Platform=x64 /t:Build /v:minimal"
+        command = f"\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\" && msbuild strongin-{variant}/strongin-{variant}.vcxproj /p:Configuration=Release /p:Platform=x64 /t:Build /v:minimal"
 
         build_res = subprocess.run(
             command,
@@ -42,10 +41,12 @@ def fillFiles():
 
 
 now = datetime.datetime.now()
+print("Started at", now)
 
 # buildProjects()
-print("Started at", now)
 fillFiles()
 
+elapsed = datetime.datetime.now() - now
 now = datetime.datetime.now()
 print("Ended at", now)
+print("Elasped:", elapsed.total_seconds(), "seconds")

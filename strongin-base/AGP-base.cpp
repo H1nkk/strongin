@@ -7,8 +7,10 @@
 #include <set>
 #include <chrono>
 #include <vector>
+#include <filesystem>
 
 using namespace std;
+namespace fs = std::filesystem;
 
 double r = 2.0; // method parameter
 double E; // epsilon
@@ -288,6 +290,10 @@ void benchTimeTests() {
 		cout << '\n';
 		cout << flush;
 
+		string folderPath = "test-results";
+		if (!fs::exists(folderPath)) {
+			fs::create_directories(folderPath);
+		}
 		ofstream outfile("test-results/base-Function" + to_string(i + 1) + "-res.txt");
 		outfile << "AGP-result: " << res.extremumArg << '\n';
 		outfile << "Actual-result: " << extremums[funcs[i]] << '\n';
