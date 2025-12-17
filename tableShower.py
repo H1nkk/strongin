@@ -64,13 +64,28 @@ def checkResults():
 
 
 def showAGPResult():
+    headers = [""]
     variant = algorithmVariants[0]
+    properties = dict()
     for funcNumber in range(1, funcCount + 1):
-        print(f"    Function {funcNumber}")
-        file = open("strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
-        for i in range(5):
-            print(file.readline()[:-1])
-        print()
+        headers.append(f"Function {funcNumber}")
+        resultsFile = open("strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
+        for i in range(4):
+            stroka = resultsFile.readline()[:-1]
+            if not stroka.split(": ")[0] in properties:
+                properties[stroka.split(": ")[0]] = list()
+            properties[stroka.split(": ")[0]].append(float(stroka.split(": ")[1]))
+
+    table = PrettyTable(headers)
+    for prop in properties:
+        row = list()
+        row.append(prop)
+        for i in properties[prop]:
+            row.append(i)
+        table.add_row(row)
+
+    print("AGP-result table:")
+    print(table)
 
 
 def showTable():
@@ -145,6 +160,6 @@ def showTables(tableNames):
 
 
 showAGPResult()
-showTables(["AGP-result", "Actual-result", "Difference-in-results", "Iterations-count", "Minimum-calculating-time"])
+showTables(["Minimum-calculating-time"])
 checkResults()
 
