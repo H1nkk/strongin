@@ -1,6 +1,6 @@
 from prettytable import PrettyTable
 
-algorithmVariants = ["vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz"]
+algorithmVariants = ["vectoroptimized", "omp-simple",  "dllist", "map", "pqueue", "pqlimitedsz", "omp-map"]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
@@ -12,6 +12,8 @@ def checkResults():
     properties = set()
 
     for variant in algorithmVariants:
+        if variant[:3] == "omp":
+            continue
         variantResults[variant] = []
 
         for funcNumber in range(1, funcCount + 1):
@@ -32,6 +34,8 @@ def checkResults():
 
     notOk = set()
     for variant in algorithmVariants[1:]:
+        if variant[:3] == "omp":
+            continue
         for funcNumber in range(funcCount):
             for prop in properties:
                 if variantResults[variant][funcNumber][prop] != standart[funcNumber][prop]:

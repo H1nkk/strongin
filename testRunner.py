@@ -1,6 +1,6 @@
 import os, datetime, subprocess
 
-algorithmVariants = ["vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz"]
+algorithmVariants = ["omp-simple", "vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz", "omp-map"]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
@@ -11,7 +11,8 @@ def buildProjects():
     for variant in algorithmVariants:
         vcxproj_path = os.path.join(f"strongin-{variant}/strongin-{variant}.vcxproj")
         print(f"Building {variant}")
-        command = f"\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\" && msbuild strongin-{variant}/strongin-{variant}.vcxproj /p:Configuration=Release /p:Platform=x64 /t:Build /v:minimal"
+        compiler_commands = "/openmp /O2"
+        command = f"\"C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\Common7\\Tools\\VsDevCmd.bat\" && msbuild strongin-{variant}/strongin-{variant}.vcxproj /p:Configuration=Release /p:AdditionalOptions=\"{compiler_commands}\" /p:Platform=x64 /t:Build /v:minimal"
 
         build_res = subprocess.run(
             command,
@@ -34,16 +35,30 @@ def fillFiles():
     for variant in algorithmVariants:
         print("############################")
         print(f"Running {variant}")
-        command = "cd strongin-" + variant + " && "
-        command += "\"x64/Release/strongin-" + variant + ".exe\""
 
-        process = subprocess.run(command, shell=True)
+        exe_path = os.path.join("x64", "Release", f"strongin-{variant}.exe")
+        working_dir = os.path.join(os.getcwd(), f"strongin-{variant}")
+
+        if not os.path.exists(os.path.join(working_dir, exe_path)):
+            print(f"Executable not found: {exe_path} in {working_dir}")
+            continue
+
+        process = subprocess.run(
+            os.path.join(working_dir, exe_path),
+            cwd=working_dir,
+            shell=False
+        )
+
+        if process.returncode != 0:
+            print(f"Error running {variant}, return code: {process.returncode}")
+        else:
+            print(f"Finished {variant}")
 
 
 now = datetime.datetime.now()
 print("Started at", now)
 
-# buildProjects()
+buildProjects()
 fillFiles()
 
 elapsed = datetime.datetime.now() - now

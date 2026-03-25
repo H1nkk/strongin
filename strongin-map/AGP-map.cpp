@@ -244,7 +244,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 
 		// Пересчет M для нового интервала
 		double mdot = (*next(funcValue.find(ldot))).first;
-		rdot = (*next(funcValue.find(mdot))).first;
+		//rdot = (*next(funcValue.find(mdot))).first;
 		double Mcandidate1 = fabs((funcValue[mdot] - (funcValue[ldot])) / (mdot - ldot));
 		double Mcandidate2 = fabs((funcValue[rdot] - (funcValue[mdot])) / (rdot - mdot));
 		M = max({ M,Mcandidate1,Mcandidate2 });
