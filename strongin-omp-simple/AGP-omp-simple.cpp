@@ -222,86 +222,32 @@ info custom_AGP(double a, double b, double (*func)(double x)) {
 	double firstR = (b - a);
 	RtoArg.insert(make_pair(firstR, a));
 
-	// int threads_count = omp_get_max_threads();
 	int threads_count = 1;
 
 	int iterations_done = 0;
 	while (iterations_done < ITERMAX) {
-		int threads_used = min(threads_count, (int)RtoArg.size()); // это число итераций которые будут сейчас выполнены в теле while
-		vector<double> new_dot_vector(threads_used); // в i-м элементе хранится точка, полученная i-м потоком
-		vector<double> new_func_value_vector(threads_used); // в i-м элементе хранится точка, полученная i-м потоком
-		vector<double> max_R_vector(threads_used);
-		vector<double> ldot_vector(threads_used);
-		vector<double> rdot_vector(threads_used);
-		vector<bool> is_epsilon_achieved(threads_used, false);
 
-		int cur_thread = 0;
-		for (auto it = RtoArg.rbegin(); it != RtoArg.rend(); it++) {
-			double key = (*it).first;
-			max_R_vector[cur_thread] = key;
-			cur_thread++;
-			if (cur_thread >= threads_used)
-				break;
-		}
-		if (iterations_done == 39) {
-			cout << "";
-		}
+		double Rmax = prev(RtoArg.end())->first;
+		double ldot = RtoArg.find(Rmax)->second; // левая граница подразбиваемого интервала
+		double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
+		double newDot = 0.5 * (rdot + ldot);
 
-// #pragma omp parallel for
-		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
-			double Rmax = max_R_vector[cur_thread];
-			double ldot = RtoArg.find(Rmax)->second; // левая граница подразбиваемого интервала
-			double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
-			double newDot = 0.5 * (rdot + ldot);
+		funcValue[newDot] = 0;
 
-			new_dot_vector[cur_thread] = newDot;
-			ldot_vector[cur_thread] = ldot;
-			rdot_vector[cur_thread] = rdot;
+		double RToRecalculate1 = rdot - ldot;
 
-			new_func_value_vector[cur_thread] = 0;
+		RtoArg.erase(RtoArg.find(RToRecalculate1));
 
-			if ((rdot - newDot) < E || (newDot - ldot) < E) {
-				is_epsilon_achieved[cur_thread] = true;
-				break;
-			}
-		}
+		double newR1 = (newDot - ldot);
+		double newR2 = (rdot - newDot);
+
+		RtoArg.insert(make_pair(newR1, ldot));
+		RtoArg.insert(make_pair(newR2, newDot));
 
 
-		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
-			double newDot = new_dot_vector[cur_thread];
-			funcValue[newDot] = new_func_value_vector[cur_thread];
-		}
+		iterations_done++;
 
-		
-		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
-			double Rmax = max_R_vector[cur_thread];
-			double newDot = new_dot_vector[cur_thread];
-
-			double lArg = ldot_vector[cur_thread]; // аргумент, для которого будем пересчитывать R
-			double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
-			double rArg = rdot_vector[cur_thread]; // правая граница нового интервала
-			double RToRecalculate1 = rArg - lArg;
-
-			RtoArg.erase(RtoArg.find(RToRecalculate1));
-
-			double newR1 = (mArg - lArg);
-			double newR2 = (rArg - mArg);
-
-			RtoArg.insert(make_pair(newR1, lArg));
-			RtoArg.insert(make_pair(newR2, mArg));
-		}
-		
-
-		iterations_done += threads_used;
-
-		bool done = false;
-		for (auto x : is_epsilon_achieved) {
-			if (x == true) {
-				done = true;
-				break;
-			}
-		}
-		if (done) {
+		if ((rdot - newDot) < E || (newDot - ldot) < E) {
 			break;
 		}
 	}
@@ -312,7 +258,6 @@ info custom_AGP(double a, double b, double (*func)(double x)) {
 	}
 	vector<double> func_values_vec(args.size());
 	assert(args.size() == iterations_done + 2);
-
 
 #pragma omp parallel for
 	for (int i = 0; i < iterations_done + 2; i++) {
@@ -372,6 +317,7 @@ void benchTimeTests() {
 
 int main() {
 	init();
+
 	cout << fixed;
 
 	benchTimeTests();

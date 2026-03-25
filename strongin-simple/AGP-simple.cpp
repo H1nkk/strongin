@@ -302,7 +302,7 @@ void benchTimeTests() {
 		if (!fs::exists(folderPath)) {
 			fs::create_directories(folderPath);
 		}
-		ofstream outfile("test-results/omp-simple-Function" + to_string(i + 1) + "-res.txt");
+		ofstream outfile("test-results/simple-Function" + to_string(i + 1) + "-res.txt");
 		outfile << "AGP-result: " << res.extremumArg << '\n';
 		outfile << "Actual-result: " << extremums[funcs[i]] << '\n';
 		outfile << "Difference-in-results: " << fabs(res.extremumArg - extremums[funcs[i]]) << '\n';

@@ -237,6 +237,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 	RtoArg.insert(make_pair(firstR, a));
 
 
+	//int threads_count = 1;
 	int threads_count = omp_get_max_threads();
 
 	int iterations_done = 0;
@@ -247,42 +248,53 @@ info AGP(double a, double b, double (*func)(double x)) {
 		vector<double> max_R_vector(threads_used);
 		vector<double> ldot_vector(threads_used);
 		vector<double> rdot_vector(threads_used);
-		vector<bool> is_epsilon_achieved(threads_used, false);
+		vector<char> is_epsilon_achieved(threads_used, false); // char instead of vector because vector<bool> is a specification of vector and i dont know if its thread-safe
 
 		int cur_thread = 0;
 		for (auto it = RtoArg.rbegin(); it != RtoArg.rend(); it++) {
-			double key = (*it).first;
-			max_R_vector[cur_thread] = key;
+			double cur_Rmax = (*it).first;
+			max_R_vector[cur_thread] = cur_Rmax;
+			ldot_vector[cur_thread] = RtoArg.find(cur_Rmax)->second;
+			rdot_vector[cur_thread] = (*next(funcValue.find(ldot_vector[cur_thread]))).first;
 			cur_thread++;
 			if (cur_thread >= threads_used)
 				break;
-		}
-		if (iterations_done == 39) {
-			cout << "";
 		}
 
 #pragma omp parallel for
 		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
 			double Rmax = max_R_vector[cur_thread];
-			double ldot = RtoArg.find(Rmax)->second; // левая граница подразбиваемого интервала
-			double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
+			double ldot = ldot_vector[cur_thread]; // левая граница подразбиваемого интервала
+			double rdot = rdot_vector[cur_thread]; // правая граница подразбиваемого интервала
 			double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
 
 			new_dot_vector[cur_thread] = newDot;
-			ldot_vector[cur_thread] = ldot;
-			rdot_vector[cur_thread] = rdot;
 
 			new_func_value_vector[cur_thread] = func(newDot);
-
 			if ((rdot - newDot) < E || (newDot - ldot) < E) {
 				is_epsilon_achieved[cur_thread] = true;
-				break;
 			}
 		}
 
 		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
 			double newDot = new_dot_vector[cur_thread];
 			funcValue[newDot] = new_func_value_vector[cur_thread];
+			if (is_epsilon_achieved[cur_thread]) {
+				break;
+			}
+		}
+
+		iterations_done += threads_used;
+
+		bool done = false;
+		for (auto x : is_epsilon_achieved) {
+			if (x == true) {
+				done = true;
+				break;
+			}
+		}
+		if (done) {
+			break;
 		}
 
 		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
@@ -351,18 +363,7 @@ info AGP(double a, double b, double (*func)(double x)) {
 		prevm = m;
 
 
-		iterations_done += threads_used;
 
-		bool done = false;
-		for (auto x : is_epsilon_achieved) {
-			if (x == true) {
-				done = true;
-				break;
-			}
-		}
-		if (done) {
-			break;
-		}
 	}
 
 	double extrArg = (*funcValue.begin()).first;
