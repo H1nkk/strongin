@@ -87,7 +87,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			extrArg = dot;
 		}
 	}
-	info res = { extrArg, funcMin, {closestArg1, closestArg2} , dots.size() - 2};
+	info res = { extrArg, funcMin, {closestArg1, closestArg2} , dots.size() - 2u};
 	return res;
 }
 

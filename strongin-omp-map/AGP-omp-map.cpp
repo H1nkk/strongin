@@ -15,12 +15,12 @@
 
 using namespace std;
 
-info AGP(double a, double b, double (*func)(double x), double r, double E, int ITERMAX) {
+info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
 	// инициализация
 	map<double, double> funcValue; // мапа из аргумента в значение функции 
-	double firstM = fabs((func(b) - func(a)) / (b - a));
-	funcValue[a] = func(a);
-	funcValue[b] = func(b);
+	double firstM = fabs((func(b, SLOWINGITERS) - func(a, SLOWINGITERS)) / (b - a));
+	funcValue[a] = func(a, SLOWINGITERS);
+	funcValue[b] = func(b, SLOWINGITERS);
 
 	double rightFuncVal = funcValue[b], leftFuncVal = funcValue[a];
 	double M = fabs((rightFuncVal - leftFuncVal) / (b - a));
@@ -74,7 +74,7 @@ info AGP(double a, double b, double (*func)(double x), double r, double E, int I
 
 			new_dot_vector[cur_thread] = newDot;
 
-			new_func_value_vector[cur_thread] = func(newDot);
+			new_func_value_vector[cur_thread] = func(newDot, SLOWINGITERS);
 			if ((rdot - newDot) < E || (newDot - ldot) < E) {
 				is_epsilon_achieved[cur_thread] = true;
 			}
