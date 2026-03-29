@@ -95,7 +95,7 @@ info custom_AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), 
 }
 
 int main() {
-	Solver solver(custom_AGP, "omp-simple");
+	Solver solver(custom_AGP, "omp-simple", true);
 	solver.init();
 
 	std::cout << std::fixed;

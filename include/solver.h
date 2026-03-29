@@ -28,11 +28,14 @@ class Solver {
 	int ITERMAX;
 	int TIMEMEASUREITERS;
 	int SLOWINGITERS;
+	int THREADSNUM;
 
-	std::string variantLabel;
+	bool isOmpUsed = false;
+
+	string variantLabel;
 
 public:
-	Solver(info(*solvingFunction)(double a, double b, double (*func)(double x, int), double, double, int, int), std::string variantLabel) : solvingFunction(solvingFunction), variantLabel(variantLabel) {}
+	Solver(info(*solvingFunction)(double a, double b, double (*func)(double x, int), double, double, int, int), std::string variantLabel, bool isOmpUsed = false) : solvingFunction(solvingFunction), variantLabel(variantLabel), isOmpUsed(isOmpUsed) {}
 	void init() {
 		ifstream infile("../testing-properties.txt");
 		string s;
@@ -48,6 +51,9 @@ public:
 			}
 			else if (s == "EPSILON") {
 				infile >> E;
+			}
+			else if (s == "THREADSNUM") {
+				infile >> THREADSNUM;
 			}
 			else {
 				double foo;
@@ -118,6 +124,9 @@ public:
 	}
 
 	void runBenchTests() {
+		if (isOmpUsed) {
+			omp_set_num_threads(THREADSNUM);
+		}
 		auto& funcs = functionsStats.funcs;
 		for (int i = functionsStats.funcs.size() - 1; i >= 0; i--) {
 			double (*testingFunction)(double, int) = funcs[i];
@@ -153,6 +162,10 @@ public:
 			outfile << "Left-closest-argument: " << res.closestArgs.first << "\n";
 			outfile << "Right-closest-argument: " << res.closestArgs.second << "\n";
 			outfile << flush;
+		}
+
+		if (isOmpUsed) {
+			omp_set_num_threads(omp_get_max_threads());
 		}
 	}
 };
