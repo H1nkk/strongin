@@ -58,7 +58,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		for (auto it = RtoArg.rbegin(); it != RtoArg.rend(); it++) {
 			double cur_Rmax = (*it).first;
 			max_R_vector[cur_thread] = cur_Rmax;
-			ldot_vector[cur_thread] = it->second; // it was a bug: RtoArg.find(cur_Rmax)->second;
+			ldot_vector[cur_thread] = it->second;
 			rdot_vector[cur_thread] = (*next(funcValue.find(ldot_vector[cur_thread]))).first;
 			cur_thread++;
 			if (cur_thread >= threads_used)

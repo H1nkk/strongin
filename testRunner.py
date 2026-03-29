@@ -58,7 +58,7 @@ def fillFiles():
 now = datetime.datetime.now()
 print("Started at", now)
 
-buildProjects()
+#buildProjects()
 fillFiles()
 
 elapsed = datetime.datetime.now() - now

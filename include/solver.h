@@ -9,6 +9,7 @@
 #include <chrono>
 #include <vector>
 #include <filesystem>
+#include <omp.h>
 
 #include "helper_structs.h"
 #include "bench_functions.h"
