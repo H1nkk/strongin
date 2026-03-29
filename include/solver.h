@@ -13,13 +13,12 @@
 #include "helper_structs.h"
 #include "bench_functions.h"
 
-int SLOWINGITERS;
 
 namespace fs = std::filesystem;
 using namespace std; // TODO убрать
 
 class Solver {
-	info (*solvingFunction)(double a, double b, double (*func)(double x), double, double, int);
+	info (*solvingFunction)(double a, double b, double (*func)(double x, int), double, double, int, int);
 
 	funcStats functionsStats;
 
@@ -28,12 +27,12 @@ class Solver {
 
 	int ITERMAX;
 	int TIMEMEASUREITERS;
-	//int SLOWINGITERS;
+	int SLOWINGITERS;
 
 	std::string variantLabel;
 
 public:
-	Solver(info(*solvingFunction)(double a, double b, double (*func)(double x), double, double, int), std::string variantLabel) : solvingFunction(solvingFunction), variantLabel(variantLabel) {}
+	Solver(info(*solvingFunction)(double a, double b, double (*func)(double x, int), double, double, int, int), std::string variantLabel) : solvingFunction(solvingFunction), variantLabel(variantLabel) {}
 	void init() {
 		ifstream infile("../testing-properties.txt");
 		string s;
@@ -114,20 +113,20 @@ public:
 	/// @param E epsilon
 	/// @param ITREMAX maximum iterations
 	/// @returns optimization result
-	info solve(double a, double b, double (*func)(double x)) {
-		return solvingFunction(a, b, func, r, E, ITERMAX);
+	info solve(double a, double b, double (*func)(double x, int)) {
+		return solvingFunction(a, b, func, r, E, ITERMAX, SLOWINGITERS);
 	}
 
 	void runBenchTests() {
 		auto& funcs = functionsStats.funcs;
 		for (int i = functionsStats.funcs.size() - 1; i >= 0; i--) {
-			double (*testingFunction)(double) = funcs[i];
+			double (*testingFunction)(double, int) = funcs[i];
 
 			info res(0, 0, { 0, 0 }, 0);
 			double minTimeSpent = INFINITY;
 			for (int i = 0; i < TIMEMEASUREITERS; i++) {
 				auto start = chrono::high_resolution_clock::now();
-				res = solvingFunction(functionsStats.leftBound[testingFunction], functionsStats.rightBound[testingFunction], testingFunction, r, E, ITERMAX);
+				res = solvingFunction(functionsStats.leftBound[testingFunction], functionsStats.rightBound[testingFunction], testingFunction, r, E, ITERMAX, SLOWINGITERS);
 				auto stop = chrono::high_resolution_clock::now();
 				auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
 				double timeSpent = duration.count() / 1000000.0;

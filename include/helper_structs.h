@@ -11,8 +11,8 @@ struct info {
 };
 
 struct funcStats {
-	std::map<double (*)(double), double> extremums;
-	std::map<double (*)(double), double> leftBound;
-	std::map<double (*)(double), double> rightBound;
-	std::vector<double (*)(double)> funcs;
+	std::map<double (*)(double, int), double> extremums;
+	std::map<double (*)(double, int), double> leftBound;
+	std::map<double (*)(double, int), double> rightBound;
+	std::vector<double (*)(double, int)> funcs;
 };

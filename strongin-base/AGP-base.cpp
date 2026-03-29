@@ -13,9 +13,9 @@
 
 using namespace std;
 
-info AGP(double a, double b, double (*func)(double x), double r, double E, int ITERMAX) {
+info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
 	vector<double> dots = { a,b };
-	vector<double> value = { func(a), func(b) }; // value[i] = значение функции в точке i 
+	vector<double> value = { func(a, SLOWINGITERS), func(b, SLOWINGITERS) }; // value[i] = значение функции в точке i 
 	vector<double> R(1);
 	double M;
 	double m;
@@ -28,7 +28,7 @@ info AGP(double a, double b, double (*func)(double x), double r, double E, int I
 		int dotsCount = dots.size();
 
 		for (int i = 0; i < dots.size(); i++) {
-			value[i] = func(dots[i]);
+			value[i] = func(dots[i], SLOWINGITERS);
 		}
 
 		M = fabs((value[dotsCount - 1] - value[dotsCount - 2]) / (dots[dotsCount - 1] - dots[dotsCount - 2]));
@@ -72,7 +72,7 @@ info AGP(double a, double b, double (*func)(double x), double r, double E, int I
 
 	}
 
-	double extrArg = dots[0], funcMin = func(dots[0]);
+	double extrArg = dots[0], funcMin = func(dots[0], SLOWINGITERS);
 	double closestArg1 = dots[0], closestArg2 = dots[1];
 	for (int i = 0; i < dots.size(); i++) {
 		if (i > 0) {
@@ -82,8 +82,8 @@ info AGP(double a, double b, double (*func)(double x), double r, double E, int I
 			}
 		}
 		double dot = dots[i];
-		if (func(dot) < funcMin) {
-			funcMin = func(dot);
+		if (func(dot, SLOWINGITERS) < funcMin) {
+			funcMin = func(dot, SLOWINGITERS);
 			extrArg = dot;
 		}
 	}
