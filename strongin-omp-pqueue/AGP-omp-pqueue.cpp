@@ -40,8 +40,8 @@ struct RInfo {
 };
 
 info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
-	// инициализация
-	map<double, double> funcValue; // мапа из аргумента в значение функции 
+	// ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§Г Г¶ГЁГї
+	map<double, double> funcValue; // Г¬Г ГЇГ  ГЁГ§ Г Г°ГЈГіГ¬ГҐГ­ГІГ  Гў Г§Г­Г Г·ГҐГ­ГЁГҐ ГґГіГ­ГЄГ¶ГЁГЁ 
 	double firstM = fabs((func(b, SLOWINGITERS) - func(a, SLOWINGITERS)) / (b - a));
 	funcValue[a] = func(a, SLOWINGITERS);
 	funcValue[b] = func(b, SLOWINGITERS);
@@ -67,17 +67,17 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 	int iteration;
 	for (iteration = 1; iteration <= ITERMAX; iteration++) {
-		// Добавление новой точки
+		// Г„Г®ГЎГ ГўГ«ГҐГ­ГЁГҐ Г­Г®ГўГ®Г© ГІГ®Г·ГЄГЁ
 		RInfo maxInfo = Rqueue.get();
-		double ldot = maxInfo.arg; // левая граница подразбиваемого интервала
-		double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
+		double ldot = maxInfo.arg; // Г«ГҐГўГ Гї ГЈГ°Г Г­ГЁГ¶Г  ГЇГ®Г¤Г°Г Г§ГЎГЁГўГ ГҐГ¬Г®ГЈГ® ГЁГ­ГІГҐГ°ГўГ Г«Г 
+		double rdot = (*next(funcValue.find(ldot))).first; // ГЇГ°Г ГўГ Гї ГЈГ°Г Г­ГЁГ¶Г  ГЇГ®Г¤Г°Г Г§ГЎГЁГўГ ГҐГ¬Г®ГЈГ® ГЁГ­ГІГҐГ°ГўГ Г«Г 
 		double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
 		funcValue[newDot] = func(newDot, SLOWINGITERS);
 
 		if ((rdot - newDot) < E || (newDot - ldot) < E)
 			break;
 
-		// Пересчет M для нового интервала
+		// ГЏГҐГ°ГҐГ±Г·ГҐГІ M Г¤Г«Гї Г­Г®ГўГ®ГЈГ® ГЁГ­ГІГҐГ°ГўГ Г«Г 
 		ldot = maxInfo.arg;
 		double mdot = (*next(funcValue.find(ldot))).first;
 		rdot = (*next(funcValue.find(mdot))).first;
@@ -111,9 +111,9 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		}
 		else {
 
-			double lArg = Rqueue.get().arg; // аргумент, для которого будем пересчитывать R
-			double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
-			double rArg = (*next(funcValue.find(newDot))).first; // правая граница нового интервала
+			double lArg = Rqueue.get().arg; // Г Г°ГЈГіГ¬ГҐГ­ГІ, Г¤Г«Гї ГЄГ®ГІГ®Г°Г®ГЈГ® ГЎГіГ¤ГҐГ¬ ГЇГҐГ°ГҐГ±Г·ГЁГІГ»ГўГ ГІГј R
+			double mArg = newDot; // ГЅГІГ®ГІ Г Г°ГЈГіГ¬ГҐГ­ГІ ГІГ®Г«ГјГЄГ® Г·ГІГ® ГЇГ®ГїГўГЁГ«Г±Гї, Г¤Г«Гї Г­ГҐГЈГ® Г­ГіГ¦Г­Г® ГЇГ®Г±Г·ГЁГІГ ГІГј R
+			double rArg = (*next(funcValue.find(newDot))).first; // ГЇГ°Г ГўГ Гї ГЈГ°Г Г­ГЁГ¶Г  Г­Г®ГўГ®ГЈГ® ГЁГ­ГІГҐГ°ГўГ Г«Г 
 
 			double RToRecalculate1 = m * (rArg - lArg)
 				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
@@ -157,7 +157,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 }
 
 int main() {
-	Solver solver(AGP, "pqueue");
+	Solver solver(AGP, "omp-pqueue");
 	solver.init();
 
 	std::cout << std::fixed;

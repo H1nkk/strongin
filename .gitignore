@@ -6,6 +6,7 @@ strongin-pqueue/test-results/*.txt
 strongin-pqlimitedsz/test-results/*.txt
 strongin-omp-map/test-results/*.txt
 strongin-omp-simple/test-results/*.txt
+strongin-omp-pqueue/test-results/*.txt
 strongin-simple/test-results/*.txt
 
 ## Ignore Visual Studio temporary files, build results, and

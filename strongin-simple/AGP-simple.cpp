@@ -2,13 +2,9 @@
 #include <fstream>
 #include <cmath>
 #include <algorithm>
-#include <cassert>
 #include <map>
-#include <numbers>
-#include <set>
-#include <chrono>
 #include <vector>
-#include <filesystem>
+#include <cassert>
 
 #include "../include/solver.h"
 

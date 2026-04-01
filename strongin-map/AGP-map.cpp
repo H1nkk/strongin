@@ -3,11 +3,7 @@
 #include <cmath>
 #include <algorithm>
 #include <map>
-#include <numbers>
-#include <set>
-#include <chrono>
 #include <vector>
-#include <filesystem>
 
 #include "../include/solver.h"
 
@@ -16,9 +12,10 @@ using namespace std;
 info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
 	// инициализация
 	map<double, double> funcValue; // мапа из аргумента в значение функции 
-	double firstM = fabs((func(b, SLOWINGITERS) - func(a, SLOWINGITERS)) / (b - a));
 	funcValue[a] = func(a, SLOWINGITERS);
 	funcValue[b] = func(b, SLOWINGITERS);
+
+	double firstM = fabs((funcValue[b] - funcValue[a]) / (b - a));
 
 	double rightFuncVal = funcValue[b], leftFuncVal = funcValue[a];
 	double M = fabs((rightFuncVal - leftFuncVal) / (b - a));
@@ -138,6 +135,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 int main() {
 	Solver solver(AGP, "map");
+	solver.solve(0, 6.5, benchFunc9);
 	solver.init();
 
 	std::cout << std::fixed;

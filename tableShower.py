@@ -73,7 +73,7 @@ def showAGPResult():
     variant = algorithmVariants[0]
     properties = dict()
     for funcNumber in range(1, funcCount + 1):
-        headers.append(f"Function {funcNumber}")
+        headers.append(f"Function{funcNumber}")
         resultsFile = open("strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
         for i in range(4):
             stroka = resultsFile.readline()[:-1]
@@ -82,11 +82,15 @@ def showAGPResult():
             properties[stroka.split(": ")[0]].append(float(stroka.split(": ")[1]))
 
     table = PrettyTable(headers)
+
     for prop in properties:
         row = list()
         row.append(prop)
-        for i in properties[prop]:
-            row.append(i)
+        for val in properties[prop]:
+            if prop == "Iterations-count":
+                row.append(int(val))
+            else:
+                row.append(f"{val:.6f}")
         table.add_row(row)
 
     print("AGP-result table:")
@@ -186,7 +190,8 @@ def showOmpComparison():
     for funcNumber in range(1, funcCount + 1):
         headers.append(f"Function{funcNumber}")
 
-def showIterations():
+
+def showOmpTables(table_name):
     variantResults = dict()
     properties = set()
     for variant in algorithmVariants:
@@ -212,7 +217,7 @@ def showIterations():
                     for i in range(7):
                         line = file.readline()
                         propertyName = line.split()[0][:-1]
-                        if propertyName != "Iterations-count":
+                        if propertyName != table_name:
                             continue
                         properties.add(propertyName)
                         value = float(line.split()[1])
@@ -228,13 +233,13 @@ def showIterations():
                 for i in range(7):
                     line = file.readline()
                     propertyName = line.split()[0][:-1]
-                    if propertyName != "Iterations-count":
+                    if propertyName != table_name:
                         continue
                     properties.add(propertyName)
                     value = float(line.split()[1])
                     variantResults[variant][funcNumber - 1][propertyName] = value
 
-    print("Iterations-count table: ")
+    print(f"{table_name} table: ")
     headers = [""]
     for funcNumber in range(1, funcCount + 1):
         headers.append(f"Function{funcNumber}")
@@ -246,19 +251,21 @@ def showIterations():
                 row = ["non-parallel-AGP"]
             elif variant == "simple":  # bruteforce типа перебор
                 row = ["bruteforce"]
+
             else:
                 continue
+        elif variant == "omp-simple":
+            row = ["omp-bruteforce"]
         else:
             row = [variant]
 
         for funcNumber in range(funcCount):
-            row.append(variantResults[variant][funcNumber]["Iterations-count"])
+            row.append(variantResults[variant][funcNumber][table_name])
         table.add_row(row)
     print(table)
     print()
 
-
-def showTimes():
+def showIntervalLenghts():
     variantResults = dict()
     properties = set()
     for variant in algorithmVariants:
@@ -284,7 +291,7 @@ def showTimes():
                     for i in range(7):
                         line = file.readline()
                         propertyName = line.split()[0][:-1]
-                        if propertyName != "Minimum-calculating-time":
+                        if propertyName != "Left-closest-argument" and propertyName != "Right-closest-argument":
                             continue
                         properties.add(propertyName)
                         value = float(line.split()[1])
@@ -300,13 +307,13 @@ def showTimes():
                 for i in range(7):
                     line = file.readline()
                     propertyName = line.split()[0][:-1]
-                    if propertyName != "Minimum-calculating-time":
+                    if propertyName != "Left-closest-argument" and propertyName != "Right-closest-argument":
                         continue
                     properties.add(propertyName)
                     value = float(line.split()[1])
                     variantResults[variant][funcNumber - 1][propertyName] = value
 
-    print("Minimum-calculating-time table: ")
+    print(f"Interval borders table: ")
     headers = [""]
     for funcNumber in range(1, funcCount + 1):
         headers.append(f"Function{funcNumber}")
@@ -318,19 +325,25 @@ def showTimes():
                 row = ["non-parallel-AGP"]
             elif variant == "simple":  # bruteforce типа перебор
                 row = ["bruteforce"]
+
             else:
                 continue
+        elif variant == "omp-simple":
+            row = ["omp-bruteforce"]
         else:
             row = [variant]
 
         for funcNumber in range(funcCount):
-            row.append(variantResults[variant][funcNumber]["Minimum-calculating-time"])
+            intervalLenght = variantResults[variant][funcNumber]["Right-closest-argument"] - variantResults[variant][funcNumber]["Left-closest-argument"]
+            row.append(f"{intervalLenght:.6f}")
         table.add_row(row)
     print(table)
     print()
 
 showAGPResult()
-showTables(["Minimum-calculating-time"])
-checkResults()
-showIterations()
-showTimes()
+#showTables(["AGP-result", "Minimum-calculating-time" ])
+#checkResults()
+showOmpTables("Minimum-calculating-time")
+showOmpTables("Iterations-count")
+showOmpTables("AGP-result")
+showIntervalLenghts()
