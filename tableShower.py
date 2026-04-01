@@ -1,6 +1,6 @@
 from prettytable import PrettyTable
 
-algorithmVariants = ["vectoroptimized", "simple", "omp-simple", "map", "omp-map", "pqueue", "dllist", "pqlimitedsz"]
+algorithmVariants = ["vectoroptimized", "simple", "omp-simple", "map", "omp-map", "pqueue", "omp-pqueue", "dllist", "pqlimitedsz"]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
@@ -94,37 +94,6 @@ def showAGPResult():
         table.add_row(row)
 
     print("AGP-result table:")
-    print(table)
-
-
-def showTable():
-    headers = [""]
-    for funcNumber in range(1, funcCount + 1):
-        headers.append(f"Function{funcNumber}")
-
-    table = PrettyTable(headers)
-
-    for variant in algorithmVariants:
-        if variant == "map":
-            row = ["map + multimap"]
-        elif variant == "pqueue":
-            row = ["pqueue + map"]
-        elif variant == "pqlimitedsz":
-            row = ["pqueuelimited + map"]
-        else:
-            row = [variant]
-        for funcNumber in range(1, funcCount + 1):
-
-            file = open("strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
-
-            for i in range(4):
-                file.readline()
-
-            timeSpent = float(file.readline().split(" ")[1])
-            row.append(timeSpent)
-        table.add_row(row)
-
-    print("Minimum-calculating-time table:")
     print(table)
 
 
@@ -343,7 +312,7 @@ def showIntervalLenghts():
 showAGPResult()
 #showTables(["AGP-result", "Minimum-calculating-time" ])
 #checkResults()
-showOmpTables("Minimum-calculating-time")
 showOmpTables("Iterations-count")
 showOmpTables("AGP-result")
 showIntervalLenghts()
+showOmpTables("Minimum-calculating-time")

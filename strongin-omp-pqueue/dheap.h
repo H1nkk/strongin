@@ -95,4 +95,7 @@ public:
         height = 0;
     }
 
+    size_t getSize() {
+        return size;
+    }
 };

@@ -27,4 +27,8 @@ public:
 	void erase(T elem) {
 		heap.erase(elem);
 	}
+
+	size_t getSize() {
+		return heap.getSize();
+	}
 };

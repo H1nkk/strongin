@@ -19,9 +19,7 @@ struct dotInfo {
 struct RInfo {
 	double R;
 	double arg;
-	//pair<double, double>* info;
 	RInfo(double nR = 0, double nArg = 0) : R(nR), arg(nArg) {}
-	//RInfo(double nR, pair<double, double>* di) : R(nR), info(di) {}
 	bool operator<(const RInfo& rvalue) {
 		return R < rvalue.R;
 	}
@@ -65,31 +63,80 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
 	Rqueue.insert({ firstR, a });
 
-	int iteration;
-	for (iteration = 1; iteration <= ITERMAX; iteration++) {
-		// Äîáàâëåíèå íîâîé òî÷êè
-		RInfo maxInfo = Rqueue.get();
-		double ldot = maxInfo.arg; // ëåâàÿ ãðàíèöà ïîäðàçáèâàåìîãî èíòåðâàëà
-		double rdot = (*next(funcValue.find(ldot))).first; // ïðàâàÿ ãðàíèöà ïîäðàçáèâàåìîãî èíòåðâàëà
-		double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
-		funcValue[newDot] = func(newDot, SLOWINGITERS);
+	int threads_count = omp_get_max_threads();
 
-		if ((rdot - newDot) < E || (newDot - ldot) < E)
-			break;
+	int iterations_done = 0;
+	while (iterations_done < ITERMAX) {
+		int threads_used = min(threads_count, (int)Rqueue.getSize()); // это число итераций которые будут сейчас выполнены в теле while
+		vector<double> new_dot_vector(threads_used); // в i-м элементе хранится точка, полученная i-м потоком
+		vector<double> new_func_value_vector(threads_used); // в i-м элементе хранится точка, полученная i-м потоком
+		vector<double> max_R_vector(threads_used);
+		vector<double> ldot_vector(threads_used);
+		vector<double> rdot_vector(threads_used);
+		vector<char> is_epsilon_achieved(threads_used, false); // char instead of vector because vector<bool> is a specification of vector and i dont know if its thread-safe
 
-		// Ïåðåñ÷åò M äëÿ íîâîãî èíòåðâàëà
-		ldot = maxInfo.arg;
-		double mdot = (*next(funcValue.find(ldot))).first;
-		rdot = (*next(funcValue.find(mdot))).first;
-		double Mcandidate1 = fabs((funcValue[mdot] - (funcValue[ldot])) / (mdot - ldot));
-		double Mcandidate2 = fabs((funcValue[rdot] - (funcValue[mdot])) / (rdot - mdot));
-		M = max({ M,Mcandidate1,Mcandidate2 });
-
-		if (M > 0) {
-			m = r * M;
+		int cur_thread = 0;
+		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
+			double cur_Rmax = Rqueue.get().R;
+			max_R_vector[cur_thread] = cur_Rmax;
+			ldot_vector[cur_thread] = Rqueue.get().arg;
+			rdot_vector[cur_thread] = (*next(funcValue.find(ldot_vector[cur_thread]))).first;
+			Rqueue.pop();
 		}
-		else {
-			m = 1;
+
+#pragma omp parallel for
+		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
+			double Rmax = max_R_vector[cur_thread];
+			double ldot = ldot_vector[cur_thread]; // левая граница подразбиваемого интервала
+			double rdot = rdot_vector[cur_thread]; // правая граница подразбиваемого интервала
+			double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
+
+			new_dot_vector[cur_thread] = newDot;
+
+			new_func_value_vector[cur_thread] = func(newDot, SLOWINGITERS);
+			if ((rdot - newDot) < E || (newDot - ldot) < E) {
+				is_epsilon_achieved[cur_thread] = true;
+			}
+		}
+
+		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
+			double newDot = new_dot_vector[cur_thread];
+			funcValue[newDot] = new_func_value_vector[cur_thread];
+			if (is_epsilon_achieved[cur_thread]) {
+				break;
+			}
+		}
+
+		iterations_done += threads_used;
+
+		bool done = false;
+		for (auto x : is_epsilon_achieved) {
+			if (x == true) {
+				done = true;
+				break;
+			}
+		}
+		if (done) {
+			break;
+		}
+
+		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
+			// Пересчет M для нового интервала
+			double ldot = ldot_vector[cur_thread];
+			double rdot = rdot_vector[cur_thread];
+
+			double mdot = (*next(funcValue.find(ldot))).first;
+			// rdot = (*next(funcValue.find(mdot))).first; // TODO проверить, можно ли это коментить вообще
+			double Mcandidate1 = fabs((funcValue[mdot] - (funcValue[ldot])) / (mdot - ldot));
+			double Mcandidate2 = fabs((funcValue[rdot] - (funcValue[mdot])) / (rdot - mdot));
+			M = max({ M,Mcandidate1,Mcandidate2 });
+
+			if (M > 0) {
+				m = r * M;
+			}
+			else {
+				m = 1;
+			}
 		}
 
 		if (prevm != m) {
@@ -110,35 +157,39 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 		}
 		else {
+			for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
+				double Rmax = max_R_vector[cur_thread];
+				double newDot = new_dot_vector[cur_thread];
 
-			double lArg = Rqueue.get().arg; // àðãóìåíò, äëÿ êîòîðîãî áóäåì ïåðåñ÷èòûâàòü R
-			double mArg = newDot; // ýòîò àðãóìåíò òîëüêî ÷òî ïîÿâèëñÿ, äëÿ íåãî íóæíî ïîñ÷èòàòü R
-			double rArg = (*next(funcValue.find(newDot))).first; // ïðàâàÿ ãðàíèöà íîâîãî èíòåðâàëà
+				// TODO посмотреть, норм ли я тут заменил lArg и rArg (в сравнении с agp-map)
+				double lArg = ldot_vector[cur_thread]; // аргумент, для которого будем пересчитывать R
+				double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
+				double rArg = rdot_vector[cur_thread]; // правая граница нового интервала
+			
 
-			double RToRecalculate1 = m * (rArg - lArg)
-				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
-				- 2 * (funcValue[rArg] - funcValue[lArg]);
+				double newR1 = m * (mArg - lArg)
+					+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * (mArg - lArg))
+					- 2 * (funcValue[mArg] - funcValue[lArg]);
+				double newR2 = m * (rArg - mArg)
+					+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * (rArg - mArg))
+					- 2 * (funcValue[rArg] - funcValue[mArg]);
 
-			Rqueue.pop();
-
-			double newR1 = m * (mArg - lArg)
-				+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * (mArg - lArg))
-				- 2 * (funcValue[mArg] - funcValue[lArg]);
-			double newR2 = m * (rArg - mArg)
-				+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * (rArg - mArg))
-				- 2 * (funcValue[rArg] - funcValue[mArg]);
-
-			Rqueue.insert({ newR1, lArg });
-			Rqueue.insert({ newR2, mArg });
+				Rqueue.insert({ newR1, lArg });
+				Rqueue.insert({ newR2, mArg });
+			}
 		}
 
 		prevm = m;
+
+
+
 	}
 
 	double extrArg = (*funcValue.begin()).first;
 	double funcMin = funcValue[extrArg];
 	double prevArg = -INFINITY;
 	double closestArg1 = -INFINITY, closestArg2 = INFINITY;
+
 	for (auto p : funcValue) {
 		if (prevArg != -INFINITY) {
 			if ((p.first - prevArg) < (closestArg2 - closestArg1)) {
@@ -152,12 +203,12 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		}
 		prevArg = p.first;
 	}
-	info res = { extrArg, funcMin, {closestArg1, closestArg2} ,funcValue.size() - 2 };
+	info res = { extrArg, funcMin, {closestArg1, closestArg2} , (size_t)iterations_done };
 	return res;
 }
 
 int main() {
-	Solver solver(AGP, "omp-pqueue");
+	Solver solver(AGP, "omp-pqueue", 1);
 	solver.init();
 
 	std::cout << std::fixed;

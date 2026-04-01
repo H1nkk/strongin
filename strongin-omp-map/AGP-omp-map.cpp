@@ -35,8 +35,6 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
 	RtoArg.insert(make_pair(firstR, a));
 
-
-	//int threads_count = 1;
 	int threads_count = omp_get_max_threads();
 
 	int iterations_done = 0;
