@@ -1,6 +1,6 @@
 import os, datetime, subprocess
 
-algorithmVariants = ["omp-pqueue",]# "omp-map", "vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz", "omp-simple"]
+algorithmVariants = ["omp-pqueue", "omp-map", "vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz", "omp-simple", "simple"]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
@@ -58,7 +58,7 @@ def fillFiles():
 now = datetime.datetime.now()
 print("Started at", now)
 
-buildProjects()
+#buildProjects()
 fillFiles()
 
 elapsed = datetime.datetime.now() - now

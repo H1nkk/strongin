@@ -1,6 +1,6 @@
 from prettytable import PrettyTable
 
-algorithmVariants = ["vectoroptimized", "simple", "omp-simple", "map", "omp-map", "pqueue", "omp-pqueue", "dllist", "pqlimitedsz"]
+algorithmVariants = ["vectoroptimized", "simple", "omp-simple", "pqueue", "omp-pqueue", "map", "omp-map", "dllist", "pqlimitedsz"]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
@@ -163,9 +163,10 @@ def showOmpComparison():
 def showOmpTables(table_name):
     variantResults = dict()
     properties = set()
+
     for variant in algorithmVariants:
         if variant[:3] != "omp":
-            if variant == "map":
+            if variant == "pqueue":
                 variantResults[variant] = []
                 for funcNumber in range(1, funcCount + 1):
                     variantResults[variant].append(dict())
@@ -216,7 +217,7 @@ def showOmpTables(table_name):
 
     for variant in algorithmVariants:
         if variant[:3] != "omp":
-            if variant == "map":
+            if variant == "pqueue":
                 row = ["non-parallel-AGP"]
             elif variant == "simple":  # bruteforce типа перебор
                 row = ["bruteforce"]
@@ -239,7 +240,7 @@ def showIntervalLenghts():
     properties = set()
     for variant in algorithmVariants:
         if variant[:3] != "omp":
-            if variant == "map":
+            if variant == "pqueue":
                 variantResults[variant] = []
                 for funcNumber in range(1, funcCount + 1):
                     variantResults[variant].append(dict())
@@ -290,7 +291,7 @@ def showIntervalLenghts():
 
     for variant in algorithmVariants:
         if variant[:3] != "omp":
-            if variant == "map":
+            if variant == "pqueue":
                 row = ["non-parallel-AGP"]
             elif variant == "simple":  # bruteforce типа перебор
                 row = ["bruteforce"]
@@ -309,6 +310,64 @@ def showIntervalLenghts():
     print(table)
     print()
 
+
+def showAccelerationTables():
+    variantResults = dict()
+
+    podhodyashieVariants = list()
+    for variant in algorithmVariants:
+        if variant[:3] == "omp":
+            # podhodyashieVariants.append(variant)
+            podhodyashieVariants.append(variant[4:])
+
+
+    for variant in algorithmVariants:
+        if variant in podhodyashieVariants:
+            variantResults[variant] = []
+            for funcNumber in range(1, funcCount + 1):
+                variantResults[variant].append(dict())
+                file = open(
+                    "strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
+                for i in range(7):
+                    line = file.readline()
+                    propertyName = line.split()[0][:-1]
+                    if propertyName == "Minimum-calculating-time":
+                        value = float(line.split()[1])
+                        variantResults[variant][funcNumber - 1][propertyName] = value
+
+    for variant in algorithmVariants:
+        if variant in podhodyashieVariants:
+            ompVariant = "omp-" + variant
+            for funcNumber in range(1, funcCount + 1):
+                file = open(
+                    "strongin-" + ompVariant + "/test-results/" + ompVariant + "-Function" + str(funcNumber) + "-res.txt")
+                for i in range(7):
+                    line = file.readline()
+                    propertyName = line.split()[0][:-1]
+                    if propertyName == "Minimum-calculating-time":
+                        value = float(line.split()[1])
+                        variantResults[variant][funcNumber - 1][propertyName] /= value
+
+
+    print(f"Acceleration table: ")
+    headers = [""]
+    for funcNumber in range(1, funcCount + 1):
+        headers.append(f"Function{funcNumber}")
+    table = PrettyTable(headers)
+
+    for variant in podhodyashieVariants:
+        if variant == "simple":
+            row = ["bruteforce"]
+        else:
+            row = [variant]
+
+        for funcNumber in range(funcCount):
+            row.append(variantResults[variant][funcNumber]["Minimum-calculating-time"])
+        table.add_row(row)
+    print(table)
+    print()
+
+
 showAGPResult()
 #showTables(["AGP-result", "Minimum-calculating-time" ])
 #checkResults()
@@ -316,3 +375,4 @@ showOmpTables("Iterations-count")
 showOmpTables("AGP-result")
 showIntervalLenghts()
 showOmpTables("Minimum-calculating-time")
+showAccelerationTables()
