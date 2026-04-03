@@ -2,6 +2,6 @@ AGP-result: 0.965625
 Actual-result: 0.96609
 Difference-in-results: 0.000465
 Iterations-count: 1024
-Minimum-calculating-time: 0.177164
+Minimum-calculating-time: 0.01686
 Left-closest-argument: 1.05937
 Right-closest-argument: 1.05996

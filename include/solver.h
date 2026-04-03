@@ -10,7 +10,7 @@
 #include <vector>
 #include <filesystem>
 #include <omp.h>
-
+#include "C:\programming\cpp\strongin\packages\inteltbb.devel.win.2022.3.1.401\build\native\include\tbb\global_control.h"
 #include "helper_structs.h"
 #include "bench_functions.h"
 
@@ -31,12 +31,49 @@ class Solver {
 	int SLOWINGITERS;
 	int THREADSNUM;
 
-	bool isOmpUsed = false;
-
 	string variantLabel;
 
+	void benchTests() {
+		auto& funcs = functionsStats.funcs;
+		for (int i = functionsStats.funcs.size() - 1; i >= 0; i--) {
+			double (*testingFunction)(double, int) = funcs[i];
+
+			info res(0, 0, { 0, 0 }, 0);
+			double minTimeSpent = INFINITY;
+			for (int i = 0; i < TIMEMEASUREITERS; i++) {
+				auto start = chrono::high_resolution_clock::now();
+				res = solvingFunction(functionsStats.leftBound[testingFunction], functionsStats.rightBound[testingFunction], testingFunction, r, E, ITERMAX, SLOWINGITERS);
+				auto stop = chrono::high_resolution_clock::now();
+				auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
+				double timeSpent = duration.count() / 1000000.0;
+				minTimeSpent = min(minTimeSpent, timeSpent);
+			}
+			std::cout << "Func " << i + 1 << ". AGP result: " << res.extremumArg << ", actual result: " << functionsStats.extremums[funcs[i]] << '\n';
+			std::cout << "Difference in results: " << fabs(res.extremumArg - functionsStats.extremums[funcs[i]]);
+			std::cout << "\nIterations count : " << res.iterCount << "\n";
+			std::cout << "Minimum calculating time : " << minTimeSpent << "\n";
+			std::cout << "Smallest interval length: " << res.closestArgs.second - res.closestArgs.first << "\n";
+			std::cout << '\n';
+			std::cout << flush;
+
+			string folderPath = "test-results";
+			if (!fs::exists(folderPath)) {
+				fs::create_directories(folderPath);
+			}
+			ofstream outfile("test-results/" + variantLabel + "-Function" + to_string(i + 1) + "-res.txt");
+			outfile << "AGP-result: " << res.extremumArg << '\n';
+			outfile << "Actual-result: " << functionsStats.extremums[funcs[i]] << '\n';
+			outfile << "Difference-in-results: " << fabs(res.extremumArg - functionsStats.extremums[funcs[i]]) << '\n';
+			outfile << "Iterations-count: " << res.iterCount << '\n';
+			outfile << "Minimum-calculating-time: " << minTimeSpent << "\n";
+			outfile << "Left-closest-argument: " << res.closestArgs.first << "\n";
+			outfile << "Right-closest-argument: " << res.closestArgs.second << "\n";
+			outfile << flush;
+		}
+	}
+
 public:
-	Solver(info(*solvingFunction)(double a, double b, double (*func)(double x, int), double, double, int, int), std::string variantLabel, bool isOmpUsed = false) : solvingFunction(solvingFunction), variantLabel(variantLabel), isOmpUsed(isOmpUsed) {}
+	Solver(info(*solvingFunction)(double a, double b, double (*func)(double x, int), double, double, int, int), std::string variantLabel) : solvingFunction(solvingFunction), variantLabel(variantLabel) {}
 	void init() {
 		ifstream infile("../testing-properties.txt");
 		string s;
@@ -125,48 +162,19 @@ public:
 	}
 
 	void runBenchTests() {
-		if (isOmpUsed) {
-			omp_set_num_threads(THREADSNUM);
-		}
-		auto& funcs = functionsStats.funcs;
-		for (int i = functionsStats.funcs.size() - 1; i >= 0; i--) {
-			double (*testingFunction)(double, int) = funcs[i];
-
-			info res(0, 0, { 0, 0 }, 0);
-			double minTimeSpent = INFINITY;
-			for (int i = 0; i < TIMEMEASUREITERS; i++) {
-				auto start = chrono::high_resolution_clock::now();
-				res = solvingFunction(functionsStats.leftBound[testingFunction], functionsStats.rightBound[testingFunction], testingFunction, r, E, ITERMAX, SLOWINGITERS);
-				auto stop = chrono::high_resolution_clock::now();
-				auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-				double timeSpent = duration.count() / 1000000.0;
-				minTimeSpent = min(minTimeSpent, timeSpent);
+		if (variantLabel.size() > 3) {
+			if (variantLabel.substr(0, 3) == "omp") {
+				omp_set_num_threads(THREADSNUM);
+				benchTests();
+				omp_set_num_threads(omp_get_max_threads());
 			}
-			std::cout << "Func " << i + 1 << ". AGP result: " << res.extremumArg << ", actual result: " << functionsStats.extremums[funcs[i]] << '\n';
-			std::cout << "Difference in results: " << fabs(res.extremumArg - functionsStats.extremums[funcs[i]]);
-			std::cout << "\nIterations count : " << res.iterCount << "\n";
-			std::cout << "Minimum calculating time : " << minTimeSpent << "\n";
-			std::cout << "Smallest interval length: " << res.closestArgs.second - res.closestArgs.first << "\n";
-			std::cout << '\n';
-			std::cout << flush;
-
-			string folderPath = "test-results";
-			if (!fs::exists(folderPath)) {
-				fs::create_directories(folderPath);
+			else if (variantLabel.substr(0, 3) == "tbb") {
+				oneapi::tbb::global_control control(
+					oneapi::tbb::global_control::max_allowed_parallelism,
+					THREADSNUM
+				);
+				benchTests();
 			}
-			ofstream outfile("test-results/" + variantLabel + "-Function" + to_string(i + 1) + "-res.txt");
-			outfile << "AGP-result: " << res.extremumArg << '\n';
-			outfile << "Actual-result: " << functionsStats.extremums[funcs[i]] << '\n';
-			outfile << "Difference-in-results: " << fabs(res.extremumArg - functionsStats.extremums[funcs[i]]) << '\n';
-			outfile << "Iterations-count: " << res.iterCount << '\n';
-			outfile << "Minimum-calculating-time: " << minTimeSpent << "\n";
-			outfile << "Left-closest-argument: " << res.closestArgs.first << "\n";
-			outfile << "Right-closest-argument: " << res.closestArgs.second << "\n";
-			outfile << flush;
-		}
-
-		if (isOmpUsed) {
-			omp_set_num_threads(omp_get_max_threads());
 		}
 	}
 };

@@ -1,6 +1,6 @@
 from prettytable import PrettyTable
 
-algorithmVariants = ["vectoroptimized", "simple", "omp-simple", "pqueue", "omp-pqueue", "map", "omp-map", "dllist", "pqlimitedsz"]
+algorithmVariants = ["tbb-pqueue", "vectoroptimized", "simple", "omp-simple", "pqueue", "omp-pqueue", "map", "omp-map", "dllist", "pqlimitedsz"]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
@@ -268,6 +268,18 @@ def showIntervalLenghts():
                         variantResults[variant][funcNumber - 1][propertyName] = value
             else:
                 continue
+        elif variant[:3] == "tbb":
+            variantResults[variant] = []
+            for funcNumber in range(1, funcCount + 1):
+                variantResults[variant].append(dict())
+                file = open(
+                    "strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
+                for i in range(7):
+                    line = file.readline()
+                    propertyName = line.split()[0][:-1]
+                    properties.add(propertyName)
+                    value = float(line.split()[1])
+                    variantResults[variant][funcNumber - 1][propertyName] = value
         else:
             variantResults[variant] = []
             for funcNumber in range(1, funcCount + 1):
@@ -334,9 +346,33 @@ def showAccelerationTables():
                     if propertyName == "Minimum-calculating-time":
                         value = float(line.split()[1])
                         variantResults[variant][funcNumber - 1][propertyName] = value
+        if variant == "tbb-pqueue":
+            variantResults[variant] = []
+            for funcNumber in range(1, funcCount + 1):
+                variantResults[variant].append(dict())
+                file = open(
+                    "strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
+                for i in range(7):
+                    line = file.readline()
+                    propertyName = line.split()[0][:-1]
+                    if propertyName == "Minimum-calculating-time":
+                        value = float(line.split()[1])
+                        variantResults[variant][funcNumber - 1][propertyName] = value
 
     for variant in algorithmVariants:
         if variant in podhodyashieVariants:
+            if variant == "pqueue":
+                tbbVariant = "tbb-" + variant
+                for funcNumber in range(1, funcCount + 1):
+                    file = open(
+                        "strongin-" + tbbVariant + "/test-results/" + tbbVariant + "-Function" + str(
+                            funcNumber) + "-res.txt")
+                    for i in range(7):
+                        line = file.readline()
+                        propertyName = line.split()[0][:-1]
+                        if propertyName == "Minimum-calculating-time":
+                            value = float(line.split()[1])
+                            variantResults[tbbVariant][funcNumber - 1][propertyName] = variantResults[variant][funcNumber - 1][propertyName] / value
             ompVariant = "omp-" + variant
             for funcNumber in range(1, funcCount + 1):
                 file = open(
@@ -349,6 +385,7 @@ def showAccelerationTables():
                         variantResults[variant][funcNumber - 1][propertyName] /= value
 
 
+    podhodyashieVariants.append("tbb-pqueue")
     print(f"Acceleration table: ")
     headers = [""]
     for funcNumber in range(1, funcCount + 1):
@@ -367,9 +404,8 @@ def showAccelerationTables():
     print(table)
     print()
 
-
+showTables(["AGP-result", "Minimum-calculating-time" ])
 showAGPResult()
-#showTables(["AGP-result", "Minimum-calculating-time" ])
 #checkResults()
 showOmpTables("Iterations-count")
 showOmpTables("AGP-result")

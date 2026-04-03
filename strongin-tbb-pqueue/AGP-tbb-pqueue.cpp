@@ -1,18 +1,62 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
 #include <map>
 #include <vector>
-#include <omp.h>
+#include "pqueue.h"
+#include <tbb/parallel_for.h>
+// #include <tbb/blocked_range.h>
+
+void tbb_hello_world() {
+	std::cout << "\n=== TBB Hello World ===\n";
+
+	// Узнаём количество доступных потоков
+	std::cout << "Available TBB threads: " << tbb::this_task_arena::max_concurrency() << std::endl;
+
+	// Простой parallel_for
+	tbb::parallel_for(0, 10, [](int i) {
+		std::cout << "Hello from TBB thread " << i << std::endl;
+		});
+
+	std::cout << "=== End TBB Hello World ===\n\n";
+}
+
 
 #include "../include/solver.h"
 
 using namespace std;
 
+struct dotInfo {
+	double arg;
+	double funcVal;
+	double R;
+};
+
+struct RInfo {
+	double R;
+	double arg;
+	RInfo(double nR = 0, double nArg = 0) : R(nR), arg(nArg) {}
+	bool operator<(const RInfo& rvalue) {
+		return R < rvalue.R;
+	}
+	bool operator<=(const RInfo& rvalue) {
+		return R <= rvalue.R;
+	}
+	bool operator>(const RInfo& rvalue) {
+		return R > rvalue.R;
+	}
+	bool operator>=(const RInfo& rvalue) {
+		return R >= rvalue.R;
+	}
+	bool operator==(const RInfo& rvalue) {
+		return (R == rvalue.R);
+	}
+};
+
 info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
-	// инициализация
-	map<double, double> funcValue; // мапа из аргумента в значение функции 
+	// èíèöèàëèçàöèÿ
+	map<double, double> funcValue; // ìàïà èç àðãóìåíòà â çíà÷åíèå ôóíêöèè 
 	double firstM = fabs((func(b, SLOWINGITERS) - func(a, SLOWINGITERS)) / (b - a));
 	funcValue[a] = func(a, SLOWINGITERS);
 	funcValue[b] = func(b, SLOWINGITERS);
@@ -29,17 +73,18 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		m = 1;
 	}
 
-	multimap<double, double> RtoArg; // в RtoArg[curR] хранится аргумент x, с которого начинается отрезок для характеристикой R = curR
+	pqueue<RInfo> Rqueue;
+
 	double firstR = m * (b - a);
 	firstR += (rightFuncVal - leftFuncVal) * (rightFuncVal - leftFuncVal) / (m * (b - a));
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
-	RtoArg.insert(make_pair(firstR, a));
+	Rqueue.insert({ firstR, a });
 
 	int threads_count = omp_get_max_threads();
 
 	int iterations_done = 0;
 	while (iterations_done < ITERMAX) {
-		int threads_used = min(threads_count, (int)RtoArg.size()); // это число итераций которые будут сейчас выполнены в теле while
+		int threads_used = min(threads_count, (int)Rqueue.getSize()); // это число итераций которые будут сейчас выполнены в теле while
 		vector<double> new_dot_vector(threads_used); // в i-м элементе хранится точка, полученная i-м потоком
 		vector<double> new_func_value_vector(threads_used); // в i-м элементе хранится точка, полученная i-м потоком
 		vector<double> max_R_vector(threads_used);
@@ -48,18 +93,15 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		vector<char> is_epsilon_achieved(threads_used, false); // char instead of vector because vector<bool> is a specification of vector and i dont know if its thread-safe
 
 		int cur_thread = 0;
-		for (auto it = RtoArg.rbegin(); it != RtoArg.rend(); it++) {
-			double cur_Rmax = (*it).first;
+		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
+			double cur_Rmax = Rqueue.get().R;
 			max_R_vector[cur_thread] = cur_Rmax;
-			ldot_vector[cur_thread] = it->second;
+			ldot_vector[cur_thread] = Rqueue.get().arg;
 			rdot_vector[cur_thread] = (*next(funcValue.find(ldot_vector[cur_thread]))).first;
-			cur_thread++;
-			if (cur_thread >= threads_used)
-				break;
+			Rqueue.pop();
 		}
 
-#pragma omp parallel for
-		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
+		tbb::parallel_for(0, threads_used, [&](int cur_thread) {
 			double Rmax = max_R_vector[cur_thread];
 			double ldot = ldot_vector[cur_thread]; // левая граница подразбиваемого интервала
 			double rdot = rdot_vector[cur_thread]; // правая граница подразбиваемого интервала
@@ -71,7 +113,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			if ((rdot - newDot) < E || (newDot - ldot) < E) {
 				is_epsilon_achieved[cur_thread] = true;
 			}
-		}
+		});
 
 		for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
 			double newDot = new_dot_vector[cur_thread];
@@ -117,14 +159,14 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			auto prev = funcValue.begin();
 			auto cur = next(funcValue.begin());
 
-			RtoArg.clear();
+			Rqueue.clear();
 			for (int i = 0; i < funcValue.size() - 1; i++) {
 				double ldot = (*prev).first, rdot = (*cur).first;
 				double lval = funcValue[ldot], rval = funcValue[rdot];
 				double newR = m * (rdot - ldot)
 					+ (rval - lval) * (rval - lval) / (m * (rdot - ldot))
 					- 2 * (rval - lval);
-				RtoArg.insert(make_pair(newR, ldot));
+				Rqueue.insert({ newR, ldot });
 				prev = next(prev);
 				cur = next(cur);
 			}
@@ -139,11 +181,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 				double lArg = ldot_vector[cur_thread]; // аргумент, для которого будем пересчитывать R
 				double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
 				double rArg = rdot_vector[cur_thread]; // правая граница нового интервала
-				double RToRecalculate1 = m * (rArg - lArg)
-					+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
-					- 2 * (funcValue[rArg] - funcValue[lArg]);
 
-				RtoArg.erase(RtoArg.find(RToRecalculate1));
 
 				double newR1 = m * (mArg - lArg)
 					+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * (mArg - lArg))
@@ -152,14 +190,12 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 					+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * (rArg - mArg))
 					- 2 * (funcValue[rArg] - funcValue[mArg]);
 
-				RtoArg.insert(make_pair(newR1, lArg));
-				RtoArg.insert(make_pair(newR2, mArg));
+				Rqueue.insert({ newR1, lArg });
+				Rqueue.insert({ newR2, mArg });
 			}
 		}
 
 		prevm = m;
-
-
 
 	}
 
@@ -186,7 +222,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 }
 
 int main() {
-	Solver solver(AGP, "omp-map");
+	Solver solver(AGP, "tbb-pqueue");
 	solver.init();
 
 	std::cout << std::fixed;

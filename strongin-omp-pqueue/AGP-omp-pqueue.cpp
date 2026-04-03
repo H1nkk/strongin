@@ -208,7 +208,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 }
 
 int main() {
-	Solver solver(AGP, "omp-pqueue", 1);
+	Solver solver(AGP, "omp-pqueue");
 	solver.init();
 
 	std::cout << std::fixed;

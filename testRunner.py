@@ -1,6 +1,6 @@
 import os, datetime, subprocess
 
-algorithmVariants = ["omp-pqueue", "omp-map", "vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz", "omp-simple", "simple"]
+algorithmVariants = ["tbb-pqueue", "simple", "omp-pqueue", "omp-map", "vectoroptimized", "dllist", "map", "pqueue", "pqlimitedsz", "omp-simple", ]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
