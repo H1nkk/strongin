@@ -158,7 +158,6 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		}
 		else {
 			for (cur_thread = 0; cur_thread < threads_used; cur_thread++) {
-				double Rmax = max_R_vector[cur_thread];
 				double newDot = new_dot_vector[cur_thread];
 
 				// TODO посмотреть, норм ли я тут заменил lArg и rArg (в сравнении с agp-map)

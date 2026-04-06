@@ -7,23 +7,9 @@
 #include "pqueue.h"
 #include <tbb/parallel_for.h>
 // #include <tbb/blocked_range.h>
-
-void tbb_hello_world() {
-	std::cout << "\n=== TBB Hello World ===\n";
-
-	// Узнаём количество доступных потоков
-	std::cout << "Available TBB threads: " << tbb::this_task_arena::max_concurrency() << std::endl;
-
-	// Простой parallel_for
-	tbb::parallel_for(0, 10, [](int i) {
-		std::cout << "Hello from TBB thread " << i << std::endl;
-		});
-
-	std::cout << "=== End TBB Hello World ===\n\n";
-}
-
-
 #include "../include/solver.h"
+
+#define USE_TBB
 
 using namespace std;
 
@@ -80,7 +66,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
 	Rqueue.insert({ firstR, a });
 
-	int threads_count = omp_get_max_threads();
+	int threads_count = tbb::this_task_arena::max_concurrency();
 
 	int iterations_done = 0;
 	while (iterations_done < ITERMAX) {
@@ -102,7 +88,6 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		}
 
 		tbb::parallel_for(0, threads_used, [&](int cur_thread) {
-			double Rmax = max_R_vector[cur_thread];
 			double ldot = ldot_vector[cur_thread]; // левая граница подразбиваемого интервала
 			double rdot = rdot_vector[cur_thread]; // правая граница подразбиваемого интервала
 			double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;

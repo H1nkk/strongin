@@ -10,9 +10,13 @@
 #include <vector>
 #include <filesystem>
 #include <omp.h>
-#include "C:\programming\cpp\strongin\packages\inteltbb.devel.win.2022.3.1.401\build\native\include\tbb\global_control.h"
 #include "helper_structs.h"
 #include "bench_functions.h"
+
+#ifdef USE_TBB
+#include "C:\programming\cpp\strongin\packages\inteltbb.devel.win.2022.3.1.401\build\native\include\tbb\global_control.h"
+// #include <tbb/global_control.h>
+#endif
 
 
 namespace fs = std::filesystem;
@@ -169,10 +173,16 @@ public:
 				omp_set_num_threads(omp_get_max_threads());
 			}
 			else if (variantLabel.substr(0, 3) == "tbb") {
+#ifdef USE_TBB
 				oneapi::tbb::global_control control(
 					oneapi::tbb::global_control::max_allowed_parallelism,
 					THREADSNUM
 				);
+				benchTests();
+#endif
+
+			}
+			else {
 				benchTests();
 			}
 		}
