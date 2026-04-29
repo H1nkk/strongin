@@ -1,4 +1,6 @@
-﻿#include <iostream>
+﻿#define USE_TBB
+
+#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
@@ -9,7 +11,6 @@
 // #include <tbb/blocked_range.h>
 #include "../include/solver.h"
 
-#define USE_TBB
 
 using namespace std;
 
@@ -66,7 +67,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	firstR -= 2 * (rightFuncVal - leftFuncVal);
 	Rqueue.insert({ firstR, a });
 
-	int threads_count = tbb::this_task_arena::max_concurrency();
+	int threads_count = tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism);
 
 	int iterations_done = 0;
 	while (iterations_done < ITERMAX) {
@@ -213,6 +214,7 @@ int main() {
 	std::cout << std::fixed;
 
 	solver.runBenchTests();
+	std::cout << "sdf";
 
 	return 0;
 }
