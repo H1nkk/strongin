@@ -1,6 +1,7 @@
 from prettytable import PrettyTable
 
-algorithmVariants = ["tbb-pqueue", "vectoroptimized", "simple", "omp-simple", "pqueue", "omp-pqueue", "map", "omp-map", "dllist", "pqlimitedsz"]
+# algorithmVariants = ["tbb-pqueue", "vectoroptimized", "simple", "omp-simple", "map", "omp-map", "pqueue", "omp-pqueue",  "dllist", "pqlimitedsz"]
+algorithmVariants = ["tbb-pqueue", "pqueue", "omp-pqueue"]
 file = open("testing-properties.txt")
 if int(file.readlines()[2].split()[1]) <= 10:
     algorithmVariants.append("base")
@@ -325,7 +326,7 @@ def showIntervalLenghts():
 
 def showAccelerationTables():
     variantResults = dict()
-
+    accelerationResults = dict()
     podhodyashieVariants = list()
     for variant in algorithmVariants:
         if variant[:3] == "omp":
@@ -336,8 +337,10 @@ def showAccelerationTables():
     for variant in algorithmVariants:
         if variant in podhodyashieVariants:
             variantResults[variant] = []
+            accelerationResults[variant] = []
             for funcNumber in range(1, funcCount + 1):
                 variantResults[variant].append(dict())
+                accelerationResults[variant].append(dict())
                 file = open(
                     "strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
                 for i in range(7):
@@ -348,8 +351,10 @@ def showAccelerationTables():
                         variantResults[variant][funcNumber - 1][propertyName] = value
         if variant == "tbb-pqueue":
             variantResults[variant] = []
+            accelerationResults[variant] = []
             for funcNumber in range(1, funcCount + 1):
                 variantResults[variant].append(dict())
+                accelerationResults[variant].append(dict())
                 file = open(
                     "strongin-" + variant + "/test-results/" + variant + "-Function" + str(funcNumber) + "-res.txt")
                 for i in range(7):
@@ -372,7 +377,9 @@ def showAccelerationTables():
                         propertyName = line.split()[0][:-1]
                         if propertyName == "Minimum-calculating-time":
                             value = float(line.split()[1])
-                            variantResults[tbbVariant][funcNumber - 1][propertyName] = variantResults[variant][funcNumber - 1][propertyName] / value
+                            accelRes = variantResults[variant][funcNumber - 1][propertyName] / value
+                            accelerationResults[tbbVariant][funcNumber - 1][propertyName] = accelRes
+                            # variantResults[tbbVariant][funcNumber - 1][propertyName] = variantResults[variant][funcNumber - 1][propertyName] / value
             ompVariant = "omp-" + variant
             for funcNumber in range(1, funcCount + 1):
                 file = open(
@@ -382,7 +389,10 @@ def showAccelerationTables():
                     propertyName = line.split()[0][:-1]
                     if propertyName == "Minimum-calculating-time":
                         value = float(line.split()[1])
-                        variantResults[variant][funcNumber - 1][propertyName] /= value
+                        accelRes = variantResults[variant][funcNumber - 1][propertyName] / value
+
+                        accelerationResults[variant][funcNumber - 1][propertyName] = accelRes
+                        # variantResults[variant][funcNumber - 1][propertyName] /= value
 
 
     podhodyashieVariants.append("tbb-pqueue")
@@ -393,13 +403,16 @@ def showAccelerationTables():
     table = PrettyTable(headers)
 
     for variant in podhodyashieVariants:
-        if variant == "simple":
-            row = ["bruteforce"]
+        if variant[:3] != "tbb":
+            row = ["omp-" + variant]
+        elif variant == "simple":
+            row = ["omp-bruteforce"]
         else:
             row = [variant]
 
         for funcNumber in range(funcCount):
-            row.append(variantResults[variant][funcNumber]["Minimum-calculating-time"])
+            row.append(accelerationResults[variant][funcNumber]["Minimum-calculating-time"])
+            #row.append(variantResults[variant][funcNumber]["Minimum-calculating-time"])
         table.add_row(row)
     print(table)
     print()
