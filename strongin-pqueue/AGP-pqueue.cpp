@@ -62,7 +62,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 	double firstR = m * (b - a);
 	firstR += (rightFuncVal - leftFuncVal) * (rightFuncVal - leftFuncVal) / (m * (b - a));
-	firstR -= 2 * (rightFuncVal - leftFuncVal);
+	firstR -= 2 * (rightFuncVal + leftFuncVal);
 	Rqueue.insert({ firstR, a });
 
 	int iteration;
