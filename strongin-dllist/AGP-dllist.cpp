@@ -27,7 +27,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	}
 	double firstR = m * (dots[1] - dots[0]);
 	firstR += (value[1] - value[0]) * (value[1] - value[0]) / (m * (dots[1] - dots[0]));
-	firstR -= 2 * (value[1] - value[0]);
+	firstR -= 2 * (value[1] + value[0]);
 
 	dllist R;
 	R.insert(0, firstR);
@@ -70,7 +70,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			for (int i = 1; i < dots.size(); i++) {
 				R[i - 1] = m * (dots[i] - dots[i - 1])
 					+ (value[i] - value[i - 1]) * (value[i] - value[i - 1]) / (m * (dots[i] - dots[i - 1]))
-					- 2 * (value[i] - value[i - 1]);
+					- 2 * (value[i] + value[i - 1]);
 				if (R[i - 1] > Rmax) {
 					Rmax = R[i - 1];
 					Rmaxindex = i - 1;
@@ -81,11 +81,11 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			int i = Rmaxindex + 1;
 			R[i - 1] = m * (dots[i] - dots[i - 1])
 				+ (value[i] - value[i - 1]) * (value[i] - value[i - 1]) / (m * (dots[i] - dots[i - 1]))
-				- 2 * (value[i] - value[i - 1]);
+				- 2 * (value[i] + value[i - 1]);
 			i++;
 			R.insert(i - 1, m * (dots[i] - dots[i - 1])
 				+ (value[i] - value[i - 1]) * (value[i] - value[i - 1]) / (m * (dots[i] - dots[i - 1]))
-				- 2 * (value[i] - value[i - 1]));
+				- 2 * (value[i] + value[i - 1]));
 
 			Rmax = R[0];
 			Rmaxindex = 0;

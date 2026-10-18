@@ -47,7 +47,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		for (int i = 1; i < dots.size(); i++) {
 			R[i - 1] = m * (dots[i] - dots[i - 1])
 				+ (value[i] - value[i - 1]) * (value[i] - value[i - 1]) / (m * (dots[i] - dots[i - 1]))
-				- 2 * (value[i] - value[i - 1]);
+				- 2 * (value[i] + value[i - 1]);
 
 			if (R[i - 1] > Rmax) {
 				Rmax = R[i - 1];

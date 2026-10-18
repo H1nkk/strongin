@@ -109,7 +109,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 				double lval = funcValue[ldot], rval = funcValue[rdot];
 				double newR = m * (rdot - ldot)
 					+ (rval - lval) * (rval - lval) / (m * (rdot - ldot))
-					- 2 * (rval - lval);
+					- 2 * (rval + lval);
 				Rqueue.insert({ newR, ldot });
 				Rqueue_unlim.insert({ newR, ldot });
 				prev = next(prev);
@@ -125,17 +125,17 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 			double RToRecalculate1 = m * (rArg - lArg)
 				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
-				- 2 * (funcValue[rArg] - funcValue[lArg]); // = Rmax
+				- 2 * (funcValue[rArg] + funcValue[lArg]); // = Rmax
 
 			Rqueue.pop();
 			Rqueue_unlim.pop();
 
 			double newR1 = m * (mArg - lArg)
 				+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * (mArg - lArg))
-				- 2 * (funcValue[mArg] - funcValue[lArg]);
+				- 2 * (funcValue[mArg] + funcValue[lArg]);
 			double newR2 = m * (rArg - mArg)
 				+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * (rArg - mArg))
-				- 2 * (funcValue[rArg] - funcValue[mArg]);
+				- 2 * (funcValue[rArg] + funcValue[mArg]);
 
 			Rqueue.insert({ newR1, lArg });
 			Rqueue.insert({ newR2, mArg });

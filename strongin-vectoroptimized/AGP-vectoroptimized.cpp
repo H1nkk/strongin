@@ -36,7 +36,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	vector<double> R(1);
 	double firstR = m * (b - a);
 	firstR += (dots[1].val - dots[0].val) * (dots[1].val - dots[0].val) / (m * (b - a));
-	firstR -= 2 * (dots[1].val - dots[0].val);
+	firstR -= 2.0 * (dots[1].val + dots[0].val);
 	R[0] = firstR;
 
 	double Rmax = firstR;
@@ -69,13 +69,13 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 		if (prevm != m) { // пересчет R для всех интервалов, т.к. меняется m:
 			R.push_back(0);
-			Rmax = R[R.size() - 1];
+			Rmax = -INFINITY;
 			Rmaxindex = R.size() - 1;
 
 			for (int i = 1; i < dots.size(); i++) {
 				R[i - 1] = m * (dots[i].arg - dots[i - 1].arg)
 					+ (dots[i].val - dots[i - 1].val) * (dots[i].val - dots[i - 1].val) / (m * (dots[i].arg - dots[i - 1].arg))
-					- 2 * (dots[i].val - dots[i - 1].val);
+					- 2 * (dots[i].val + dots[i - 1].val);
 				if (R[i - 1] > Rmax) {
 					Rmax = R[i - 1];
 					Rmaxindex = i - 1;
@@ -86,7 +86,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			int i = Rmaxindex + 1;
 			R[i - 1] = m * (dots[i].arg - dots[i - 1].arg)
 				+ (dots[i].val - dots[i - 1].val) * (dots[i].val - dots[i - 1].val) / (m * (dots[i].arg - dots[i - 1].arg))
-				- 2 * (dots[i].val - dots[i - 1].val);
+				- 2 * (dots[i].val + dots[i - 1].val);
 			i++;
 			R.push_back(0);
 			for (int j = R.size() - 1; j > i - 1; j--) {
@@ -94,7 +94,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			}
 			R[i - 1] = m * (dots[i].arg - dots[i - 1].arg)
 				+ (dots[i].val - dots[i - 1].val) * (dots[i].val - dots[i - 1].val) / (m * (dots[i].arg - dots[i - 1].arg))
-				- 2 * (dots[i].val - dots[i - 1].val);
+				- 2 * (dots[i].val + dots[i - 1].val);
 
 			Rmax = R[0];
 			Rmaxindex = 0;

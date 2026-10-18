@@ -32,7 +32,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	multimap<double, double> RtoArg; // в RtoArg[curR] хранится аргумент x, с которого начинается отрезок для характеристикой R = curR
 	double firstR = m * (b - a);
 	firstR += (rightFuncVal - leftFuncVal) * (rightFuncVal - leftFuncVal) / (m * (b - a));
-	firstR -= 2 * (rightFuncVal - leftFuncVal);
+	firstR -= 2 * (rightFuncVal + leftFuncVal);
 	RtoArg.insert(make_pair(firstR, a));
 
 	double Rmax = firstR;
@@ -73,7 +73,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 				double lval = funcValue[ldot], rval = funcValue[rdot];
 				double newR = m * (rdot - ldot)
 					+ (rval - lval) * (rval - lval) / (m * (rdot - ldot))
-					- 2 * (rval - lval);
+					- 2 * (rval + lval);
 				//RtoArg[newR] = ldot;
 				RtoArg.insert(make_pair(newR, ldot));
 				prev = next(prev);
@@ -90,16 +90,16 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 			double RToRecalculate1 = m * (rArg - lArg)
 				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
-				- 2 * (funcValue[rArg] - funcValue[lArg]);
+				- 2 * (funcValue[rArg] + funcValue[lArg]);
 
 			RtoArg.erase(RtoArg.find(RToRecalculate1));
 
 			double newR1 = m * (mArg - lArg)
 				+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * (mArg - lArg))
-				- 2 * (funcValue[mArg] - funcValue[lArg]);
+				- 2 * (funcValue[mArg] + funcValue[lArg]);
 			double newR2 = m * (rArg - mArg)
 				+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * (rArg - mArg))
-				- 2 * (funcValue[rArg] - funcValue[mArg]);
+				- 2 * (funcValue[rArg] + funcValue[mArg]);
 
 			//RtoArg[newR1] = lArg;
 			RtoArg.insert(make_pair(newR1, lArg));
