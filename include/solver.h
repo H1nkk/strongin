@@ -186,5 +186,8 @@ public:
 				benchTests();
 			}
 		}
+		else {
+			benchTests();
+		}
 	}
 };
