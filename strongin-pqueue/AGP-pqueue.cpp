@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
@@ -40,8 +40,8 @@ struct RInfo {
 };
 
 info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
-	// инициализация
-	map<double, double> funcValue; // мапа из аргумента в значение функции 
+	// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
+	map<double, double> funcValue; // РјР°РїР° РёР· Р°СЂРіСѓРјРµРЅС‚Р° РІ Р·РЅР°С‡РµРЅРёРµ С„СѓРЅРєС†РёРё 
 	double firstM = fabs((func(b, SLOWINGITERS) - func(a, SLOWINGITERS)) / (b - a));
 	funcValue[a] = func(a, SLOWINGITERS);
 	funcValue[b] = func(b, SLOWINGITERS);
@@ -67,17 +67,17 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 
 	int iteration;
 	for (iteration = 1; iteration <= ITERMAX; iteration++) {
-		// Добавление новой точки
+		// Р”РѕР±Р°РІР»РµРЅРёРµ РЅРѕРІРѕР№ С‚РѕС‡РєРё
 		RInfo maxInfo = Rqueue.get();
-		double ldot = maxInfo.arg; // левая граница подразбиваемого интервала
-		double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
+		double ldot = maxInfo.arg; // Р»РµРІР°СЏ РіСЂР°РЅРёС†Р° РїРѕРґСЂР°Р·Р±РёРІР°РµРјРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
+		double rdot = (*next(funcValue.find(ldot))).first; // РїСЂР°РІР°СЏ РіСЂР°РЅРёС†Р° РїРѕРґСЂР°Р·Р±РёРІР°РµРјРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
 		double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
 		funcValue[newDot] = func(newDot, SLOWINGITERS);
 
 		if ((rdot - newDot) < E || (newDot - ldot) < E)
 			break;
 
-		// Пересчет M для нового интервала
+		// РџРµСЂРµСЃС‡РµС‚ M РґР»СЏ РЅРѕРІРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
 		ldot = maxInfo.arg;
 		double mdot = (*next(funcValue.find(ldot))).first;
 		rdot = (*next(funcValue.find(mdot))).first;
@@ -111,9 +111,9 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 		}
 		else {
 
-			double lArg = Rqueue.get().arg; // аргумент, для которого будем пересчитывать R
-			double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
-			double rArg = (*next(funcValue.find(newDot))).first; // правая граница нового интервала
+			double lArg = Rqueue.get().arg; // Р°СЂРіСѓРјРµРЅС‚, РґР»СЏ РєРѕС‚РѕСЂРѕРіРѕ Р±СѓРґРµРј РїРµСЂРµСЃС‡РёС‚С‹РІР°С‚СЊ R
+			double mArg = newDot; // СЌС‚РѕС‚ Р°СЂРіСѓРјРµРЅС‚ С‚РѕР»СЊРєРѕ С‡С‚Рѕ РїРѕСЏРІРёР»СЃСЏ, РґР»СЏ РЅРµРіРѕ РЅСѓР¶РЅРѕ РїРѕСЃС‡РёС‚Р°С‚СЊ R
+			double rArg = (*next(funcValue.find(newDot))).first; // РїСЂР°РІР°СЏ РіСЂР°РЅРёС†Р° РЅРѕРІРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
 
 			double RToRecalculate1 = m * (rArg - lArg)
 				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))

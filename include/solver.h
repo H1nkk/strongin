@@ -108,7 +108,7 @@ public:
 		functionsStats.rightBound[benchFunc1] = 7.5;
 		functionsStats.funcs.push_back(benchFunc1);
 
-		functionsStats.extremums[benchFunc2] = 5.791785; // òóò íåñêîëüêî ýêñòðåìóìîâ
+		functionsStats.extremums[benchFunc2] = 5.791785; // тут несколько экстремумов
 		functionsStats.leftBound[benchFunc2] = 0.0;
 		functionsStats.rightBound[benchFunc2] = 10.0;
 		functionsStats.funcs.push_back(benchFunc2);

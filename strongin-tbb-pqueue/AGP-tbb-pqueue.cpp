@@ -42,8 +42,8 @@ struct RInfo {
 };
 
 info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
-	// èíèöèàëèçàöèÿ
-	map<double, double> funcValue; // ìàïà èç àðãóìåíòà â çíà÷åíèå ôóíêöèè 
+	// инициализация
+	map<double, double> funcValue; // мапа из аргумента в значение функции 
 	double firstM = fabs((func(b, SLOWINGITERS) - func(a, SLOWINGITERS)) / (b - a));
 	funcValue[a] = func(a, SLOWINGITERS);
 	funcValue[b] = func(b, SLOWINGITERS);

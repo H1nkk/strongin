@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
@@ -11,7 +11,7 @@ using namespace std;
 
 info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
 	vector<double> dots = { a,b };
-	vector<double> value = { func(a, SLOWINGITERS), func(b, SLOWINGITERS) }; // value[i] = значение функции в точке i 
+	vector<double> value = { func(a, SLOWINGITERS), func(b, SLOWINGITERS) }; // value[i] = Р·РЅР°С‡РµРЅРёРµ С„СѓРЅРєС†РёРё РІ С‚РѕС‡РєРµ i 
 	vector<double> R(1);
 	double M;
 	double m;

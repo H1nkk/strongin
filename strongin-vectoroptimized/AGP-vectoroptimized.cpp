@@ -1,4 +1,4 @@
-#include <iostream>
+ï»¿#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
@@ -45,8 +45,8 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	int iteration;
 	for (iteration = 1; iteration <= ITERMAX; iteration++) {
 
-		double rdot = dots[Rmaxindex + 1].arg; // ïðàâàÿ ãðàíèöà ïîäðàçáèâàåìîãî èíòåðâàëà
-		double ldot = dots[Rmaxindex].arg; // ëåâàÿ ãðàíèöà ïîäðàçáèâàåìîãî èíòåðâàëà
+		double rdot = dots[Rmaxindex + 1].arg; // Ð¿Ñ€Ð°Ð²Ð°Ñ Ð³Ñ€Ð°Ð½Ð¸Ñ†Ð° Ð¿Ð¾Ð´Ñ€Ð°Ð·Ð±Ð¸Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð¸Ð½Ñ‚ÐµÑ€Ð²Ð°Ð»Ð°
+		double ldot = dots[Rmaxindex].arg; // Ð»ÐµÐ²Ð°Ñ Ð³Ñ€Ð°Ð½Ð¸Ñ†Ð° Ð¿Ð¾Ð´Ñ€Ð°Ð·Ð±Ð¸Ð²Ð°ÐµÐ¼Ð¾Ð³Ð¾ Ð¸Ð½Ñ‚ÐµÑ€Ð²Ð°Ð»Ð°
 		double newDot = 0.5 * (rdot + ldot) - (dots[Rmaxindex + 1].val - dots[Rmaxindex].val) * 0.5 / m;
 
 		dots.push_back({ newDot, func(newDot, SLOWINGITERS) });
@@ -67,7 +67,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			m = 1;
 		}
 
-		if (prevm != m) { // ïåðåñ÷åò R äëÿ âñåõ èíòåðâàëîâ, ò.ê. ìåíÿåòñÿ m:
+		if (prevm != m) { // Ð¿ÐµÑ€ÐµÑÑ‡ÐµÑ‚ R Ð´Ð»Ñ Ð²ÑÐµÑ… Ð¸Ð½Ñ‚ÐµÑ€Ð²Ð°Ð»Ð¾Ð², Ñ‚.Ðº. Ð¼ÐµÐ½ÑÐµÑ‚ÑÑ m:
 			R.push_back(0);
 			Rmax = -INFINITY;
 			Rmaxindex = R.size() - 1;
@@ -82,7 +82,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 				}
 			}
 		}
-		else { // ïåðåñ÷èòûâàåì òîëüêî äëÿ íîâîãî èíòåðâàëà:
+		else { // Ð¿ÐµÑ€ÐµÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÐ¼ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð´Ð»Ñ Ð½Ð¾Ð²Ð¾Ð³Ð¾ Ð¸Ð½Ñ‚ÐµÑ€Ð²Ð°Ð»Ð°:
 			int i = Rmaxindex + 1;
 			R[i - 1] = m * (dots[i].arg - dots[i - 1].arg)
 				+ (dots[i].val - dots[i - 1].val) * (dots[i].val - dots[i - 1].val) / (m * (dots[i].arg - dots[i - 1].arg))

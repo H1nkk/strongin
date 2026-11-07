@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <vector>
 #include <iostream>
 #include <utility>
@@ -38,7 +38,7 @@ class dheaplimited_linear {
         return res;
     }
     void ascend(int i) {
-        int p = (i - 1) / d; // индекс предка
+        int p = (i - 1) / d; // РёРЅРґРµРєСЃ РїСЂРµРґРєР°
         while ((i != 0) && mem[i] > mem[p]) {
             swap(mem[i], mem[p]);
 
@@ -48,7 +48,7 @@ class dheaplimited_linear {
 
     }
     void descend(int i) {
-        int p = maxChildIndex(i); // индекс потомка
+        int p = maxChildIndex(i); // РёРЅРґРµРєСЃ РїРѕС‚РѕРјРєР°
         while ((p < size) && (mem[i] < mem[p])) {
             swap(mem[i], mem[p]);
 
@@ -128,7 +128,7 @@ class dheaplimited_multimap {
     int maxsz;
     int minInd;
     T Tmin;
-    multimap<T, size_t> mp; // map из элемента кучи в индекс
+    multimap<T, size_t> mp; // map РёР· СЌР»РµРјРµРЅС‚Р° РєСѓС‡Рё РІ РёРЅРґРµРєСЃ
 
     int find(T x) {
         for (int i = 0; i < size; i++) {
@@ -151,7 +151,7 @@ class dheaplimited_multimap {
         return res;
     }
     void ascend(int i) {
-        int p = (i - 1) / d; // индекс предка
+        int p = (i - 1) / d; // РёРЅРґРµРєСЃ РїСЂРµРґРєР°
         while ((i != 0) && mem[i] > mem[p]) {
             swap(mem[i], mem[p]);
             mp.erase(mem[i]);
@@ -163,7 +163,7 @@ class dheaplimited_multimap {
         mp.insert(make_pair(mem[i], i));
     }
     void descend(int i) {
-        int p = maxChildIndex(i); // индекс потомка
+        int p = maxChildIndex(i); // РёРЅРґРµРєСЃ РїРѕС‚РѕРјРєР°
         while ((p < size) && (mem[i] < mem[p])) {
             swap(mem[i], mem[p]);
             mp.erase(mem[i]);
@@ -268,7 +268,7 @@ class dheap {
         return res;
     }
     void ascend(int i) {
-        int p = (i - 1) / d; // индекс предка
+        int p = (i - 1) / d; // РёРЅРґРµРєСЃ РїСЂРµРґРєР°
         while ((i != 0) && mem[i] > mem[p]) {
             swap(mem[i], mem[p]);
             i = p;
@@ -276,7 +276,7 @@ class dheap {
         }
     }
     void descend(int i) {
-        int p = maxChildIndex(i); // индекс потомка
+        int p = maxChildIndex(i); // РёРЅРґРµРєСЃ РїРѕС‚РѕРјРєР°
         while ((p < size) && (mem[i] < mem[p])) {
             swap(mem[i], mem[p]);
             i = p;

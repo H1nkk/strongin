@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include <iostream>
 
@@ -32,7 +32,7 @@ class dheap {
         return res;
     }
     void ascend(int i) {
-        int p = (i - 1) / d; // èíäåêñ ïðåäêà
+        int p = (i - 1) / d; // индекс предка
         while ((i != 0) && mem[i] > mem[p]) {
             swap(mem[i], mem[p]);
             i = p;
@@ -40,7 +40,7 @@ class dheap {
         }
     }
     void descend(int i) {
-        int p = maxChildIndex(i); // èíäåêñ ïîòîìêà
+        int p = maxChildIndex(i); // индекс потомка
         while ((p < size) && (mem[i] < mem[p])) {
             swap(mem[i], mem[p]);
             i = p;

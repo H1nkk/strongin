@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
@@ -14,7 +14,7 @@ using namespace std;
 info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double r, double E, int ITERMAX, int SLOWINGITERS) {
 	dllist dots({ a,b });
 
-	dllist value({ func(a, SLOWINGITERS), func(b, SLOWINGITERS) }); // value[i] = значение функции в точке i 
+	dllist value({ func(a, SLOWINGITERS), func(b, SLOWINGITERS) }); // value[i] = Р·РЅР°С‡РµРЅРёРµ С„СѓРЅРєС†РёРё РІ С‚РѕС‡РєРµ i 
 
 	double M = fabs(value[1] - value[0]) / (dots[1] - dots[0]);
 	double m;
@@ -38,8 +38,8 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 	int iteration;
 	for (iteration = 1; iteration <= ITERMAX; iteration++) {
 
-		double rdot = dots[Rmaxindex + 1]; // правая граница подразбиваемого интервала
-		double ldot = dots[Rmaxindex]; // левая граница подразбиваемого интервала
+		double rdot = dots[Rmaxindex + 1]; // РїСЂР°РІР°СЏ РіСЂР°РЅРёС†Р° РїРѕРґСЂР°Р·Р±РёРІР°РµРјРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
+		double ldot = dots[Rmaxindex]; // Р»РµРІР°СЏ РіСЂР°РЅРёС†Р° РїРѕРґСЂР°Р·Р±РёРІР°РµРјРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
 		double newDot = 0.5 * (rdot + ldot) - (value[Rmaxindex + 1] - value[Rmaxindex]) * 0.5 / m;
 		dots.insert(Rmaxindex + 1, newDot);
 		value.insert(Rmaxindex + 1, func(newDot, SLOWINGITERS));
@@ -48,11 +48,11 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			break;
 
 
-		// пересчет M для нового интервала:
+		// РїРµСЂРµСЃС‡РµС‚ M РґР»СЏ РЅРѕРІРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°:
 		double Mcandidate1 = fabs((value[Rmaxindex + 1] - value[Rmaxindex]) / (dots[Rmaxindex + 1] - dots[Rmaxindex]));
 		double Mcandidate2 = fabs((value[Rmaxindex + 2] - value[Rmaxindex + 1]) / (dots[Rmaxindex + 2] - dots[Rmaxindex + 1]));
 
-		// поиск наибольшего M:
+		// РїРѕРёСЃРє РЅР°РёР±РѕР»СЊС€РµРіРѕ M:
 		M = max({ M, Mcandidate1, Mcandidate2 });
 
 		if (M > 0) {
@@ -62,7 +62,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 			m = 1;
 		}
 
-		if (prevm != m) { // пересчет R для всех интервалов, т.к. меняется m:
+		if (prevm != m) { // РїРµСЂРµСЃС‡РµС‚ R РґР»СЏ РІСЃРµС… РёРЅС‚РµСЂРІР°Р»РѕРІ, С‚.Рє. РјРµРЅСЏРµС‚СЃСЏ m:
 			R.insert(0, 0);
 			Rmax = R[0];
 			Rmaxindex = 0;
@@ -77,7 +77,7 @@ info AGP(double a, double b, double (*func)(double x, int SLOWINGITERS), double 
 				}
 			}
 		}
-		else { // пересчитываем только для нового интервала:
+		else { // РїРµСЂРµСЃС‡РёС‚С‹РІР°РµРј С‚РѕР»СЊРєРѕ РґР»СЏ РЅРѕРІРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°:
 			int i = Rmaxindex + 1;
 			R[i - 1] = m * (dots[i] - dots[i - 1])
 				+ (value[i] - value[i - 1]) * (value[i] - value[i - 1]) / (m * (dots[i] - dots[i - 1]))

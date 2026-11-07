@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <vector>
 
 using namespace std;
@@ -16,8 +16,8 @@ class dllist {
 		}
 		Node(double x, Node* prev, Node* next) : x(x), prev(prev), next(next) {}
 	};
-	Node* lastUsed; // хранение последней использованной node для эффективного прохода по списку
-	int lastUsedInd; // индекс последней использованной node
+	Node* lastUsed; // С…СЂР°РЅРµРЅРёРµ РїРѕСЃР»РµРґРЅРµР№ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅРѕР№ node РґР»СЏ СЌС„С„РµРєС‚РёРІРЅРѕРіРѕ РїСЂРѕС…РѕРґР° РїРѕ СЃРїРёСЃРєСѓ
+	int lastUsedInd; // РёРЅРґРµРєСЃ РїРѕСЃР»РµРґРЅРµР№ РёСЃРїРѕР»СЊР·РѕРІР°РЅРЅРѕР№ node
 	Node* start;
 	int sz;
 
@@ -34,7 +34,7 @@ public:
 			insert(0, v[i]);
 		}
 	}
-	void insert(int index, double x) { // index на который вставляем
+	void insert(int index, double x) { // index РЅР° РєРѕС‚РѕСЂС‹Р№ РІСЃС‚Р°РІР»СЏРµРј
 		if (index > sz) throw "dllist index out of range";
 		sz++;
 		int tmpIndex = index;
@@ -84,8 +84,8 @@ public:
 				index -= lastUsedInd;
 			}
 			else {
-				int dist = lastUsedInd - index; // расстояние от lastused до искомой node
-				if (dist < index) { // если расстояние от lastused меньше чем от start, то идем назад, начиная с lastUsed
+				int dist = lastUsedInd - index; // СЂР°СЃСЃС‚РѕСЏРЅРёРµ РѕС‚ lastused РґРѕ РёСЃРєРѕРјРѕР№ node
+				if (dist < index) { // РµСЃР»Рё СЂР°СЃСЃС‚РѕСЏРЅРёРµ РѕС‚ lastused РјРµРЅСЊС€Рµ С‡РµРј РѕС‚ start, С‚Рѕ РёРґРµРј РЅР°Р·Р°Рґ, РЅР°С‡РёРЅР°СЏ СЃ lastUsed
 					cur = lastUsed;
 					while (dist--) {
 						cur = cur->prev;
