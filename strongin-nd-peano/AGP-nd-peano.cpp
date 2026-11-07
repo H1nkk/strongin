@@ -1,12 +1,14 @@
-#include <iostream>
+﻿#include <iostream>
 #include <fstream>
 #include <cmath>
 #include <algorithm>
 #include <map>
 #include <vector>
-#include "../strongin-pqueue/pqueue.h"
+#include <span>
 
+#include "../strongin-pqueue/pqueue.h"
 #include "../include/solver.h"
+#include "../include/evolvent.h"
 
 using namespace std;
 
@@ -68,24 +70,36 @@ pair<double, double> snake(double x, long long n) {
 	return res;
 }
 
-double f(double x, double y) {
-	return (x - 0.3) * (x - 0.3) + (y - 0.7) * (y - 0.7);
+double f(span<const double> y) {
+	return (y[0] - 6) * (y[0] - 6) + (y[1] - 4) * (y[1] - 4);
 }
 
 double f(pair<double, double> dot) {
 	double x = dot.first;
 	double y = dot.second;
-	return (x - 0.3) * (x - 0.3) + (y - 0.7) * (y - 0.7);
+	return (x - 6) * (x - 6) + (y - 4) * (y - 4);
 }
 
-info AGP(double (*func)(pair<double, double>), double r, double E, int ITERMAX, int SLOWINGITERS, long long n) {
-	// èíèöèàëèçàöèÿ
-	E /= n;
-	const double a = 0, b = 1;
-	map<double, double> funcValue; // ìàïà èç àðãóìåíòà â çíà÷åíèå ôóíêöèè 
+pair<double, double> to_box(double x, long long n,
+	double x_min, double x_max, double y_min, double y_max) {
+	auto p = snake(x, n);
+	return { x_min + p.first * (x_max - x_min),
+			 y_min + p.second * (y_max - y_min) };
+}
 
-	pair<double, double> left_dot = snake(a, n);
-	pair<double, double> right_dot = snake(b, n);
+info AGP(TEvolvent& ev,
+	double (*func)(span<const double>), double r, double E, int ITERMAX, int SLOWINGITERS, long long n) {
+	// инициализация
+	const double a = 0, b = 1;
+	E /= n;
+
+	map<double, double> funcValue; // мапа из аргумента в значение функции 
+
+	double left_dot[] = { 0, 0 };
+	double right_dot[] = { 0, 0 };
+	ev.GetImage(a, left_dot);
+	ev.GetImage(b, right_dot);
+
 
 	double firstM = fabs((func(right_dot) - func(left_dot)) / (b - a));
 	funcValue[a] = func(left_dot);
@@ -112,17 +126,20 @@ info AGP(double (*func)(pair<double, double>), double r, double E, int ITERMAX, 
 
 	int iteration;
 	for (iteration = 1; iteration <= ITERMAX; iteration++) {
-		// Äîáàâëåíèå íîâîé òî÷êè
+		// Добавление новой точки
 		RInfo maxInfo = Rqueue.get();
-		double ldot = maxInfo.arg; // ëåâàÿ ãðàíèöà ïîäðàçáèâàåìîãî èíòåðâàëà
-		double rdot = (*next(funcValue.find(ldot))).first; // ïðàâàÿ ãðàíèöà ïîäðàçáèâàåìîãî èíòåðâàëà
+		double ldot = maxInfo.arg; // левая граница подразбиваемого интервала
+		double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
 		double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
-		funcValue[newDot] = func(snake(newDot, n));
+
+		double newNDimDot[] = { 0, 0 };
+		ev.GetImage(newDot, newNDimDot);
+		funcValue[newDot] = func(newNDimDot);
 
 		if ((rdot - newDot) < E || (newDot - ldot) < E)
 			break;
 
-		// Ïåðåñ÷åò M äëÿ íîâîãî èíòåðâàëà
+		// Пересчет M для нового интервала
 		ldot = maxInfo.arg;
 		double mdot = (*next(funcValue.find(ldot))).first;
 		rdot = (*next(funcValue.find(mdot))).first;
@@ -156,9 +173,9 @@ info AGP(double (*func)(pair<double, double>), double r, double E, int ITERMAX, 
 		}
 		else {
 
-			double lArg = Rqueue.get().arg; // àðãóìåíò, äëÿ êîòîðîãî áóäåì ïåðåñ÷èòûâàòü R
-			double mArg = newDot; // ýòîò àðãóìåíò òîëüêî ÷òî ïîÿâèëñÿ, äëÿ íåãî íóæíî ïîñ÷èòàòü R
-			double rArg = (*next(funcValue.find(newDot))).first; // ïðàâàÿ ãðàíèöà íîâîãî èíòåðâàëà
+			double lArg = Rqueue.get().arg; // аргумент, для которого будем пересчитывать R
+			double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
+			double rArg = (*next(funcValue.find(newDot))).first; // правая граница нового интервала
 
 			double RToRecalculate1 = m * (rArg - lArg)
 				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
@@ -204,9 +221,18 @@ info AGP(double (*func)(pair<double, double>), double r, double E, int ITERMAX, 
 
 
 int main() {
+	TEvolvent ev(2, 10);
+	double A[] = { -8, -30 }, B[] = { 8, 30 };
+	ev.SetBounds(A, B);
+
 	double E = 0.01;
-	long long n = (long long)ceil(1 / (2.0 * E)) + 1;
+	double x_min = -8, x_max = 8;
+	double y_min = -30, y_max = 30;
+	double x_len = x_max - x_min;
+	double y_len = y_max - y_min;
+	long long n = (long long)ceil(max(x_len, y_len) / (2.0 * E)) + 1;
 	auto res = AGP(
+		ev,
 		f,
 		2.0,
 		E,
@@ -214,8 +240,10 @@ int main() {
 		0,
 		n
 	);
-
 	std::cout << std::fixed;
-	cout << snake(res.extremumArg, n).first << " " << snake(res.extremumArg, n).second;
+
+	double resDot[2];
+	ev.GetImage(res.extremumArg, resDot);
+	cout << resDot[0] << " " << resDot[1];
 	return 0;
 }

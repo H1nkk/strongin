@@ -18,6 +18,9 @@
     <ClCompile Include="AGP-nd-peano.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="evolvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\strongin-pqueue\pqueue.h">

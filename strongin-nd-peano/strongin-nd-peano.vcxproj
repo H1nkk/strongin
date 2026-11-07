@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AGP-nd-peano.cpp" />
+    <ClCompile Include="evolvent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\strongin-pqueue\dheap.h" />
