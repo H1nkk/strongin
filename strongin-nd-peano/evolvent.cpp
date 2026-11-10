@@ -323,4 +323,8 @@ void TEvolvent::GetPreimages(double* _y, double *x)
   transform_D_to_P();
   x[0] = GetXOnY();
 }
+// ------------------------------------------------------------------------------------------------
+int TEvolvent::GetDimension() const {
+    return N;
+}
 // - end of file ----------------------------------------------------------------------------------

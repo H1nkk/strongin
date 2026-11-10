@@ -5,6 +5,8 @@
 #include <map>
 #include <vector>
 #include <span>
+#include <functional>
+#include <numbers>
 
 #include "../strongin-pqueue/pqueue.h"
 #include "../include/solver.h"
@@ -12,101 +14,47 @@
 
 using namespace std;
 
-struct dotInfo {
-	double arg;
-	double funcVal;
-	double R;
-};
-
 struct RInfo {
 	double R;
 	double arg;
 	//pair<double, double>* info;
 	RInfo(double nR = 0, double nArg = 0) : R(nR), arg(nArg) {}
 	//RInfo(double nR, pair<double, double>* di) : R(nR), info(di) {}
-	bool operator<(const RInfo& rvalue) {
-		return R < rvalue.R;
-	}
-	bool operator<=(const RInfo& rvalue) {
-		return R <= rvalue.R;
-	}
-	bool operator>(const RInfo& rvalue) {
-		return R > rvalue.R;
-	}
-	bool operator>=(const RInfo& rvalue) {
-		return R >= rvalue.R;
-	}
-	bool operator==(const RInfo& rvalue) {
-		return (R == rvalue.R);
-	}
+	auto operator<=>(const RInfo& o) const { return R <=> o.R; }
 };
-
-pair<double, double> get_cell_center(long long i, long long n) {
-	long long row = i / n;
-	long long col;
-	if (row % 2 == 0) {
-		col = i % n;
-	}
-	else {
-		col = n - 1 - i % n;
-	}
-
-	return { (col + 0.5) / n, (row + 0.5) / n };
-}
-
-pair<double, double> snake(double x, long long n) {
-	double t = x * (n * n - 1);
-	long long i = t;
-	if (i >= n * n - 1) i = n * n - 2;
-	double delta = t - i;
-
-	auto center_i = get_cell_center(i, n);
-	auto center_i_plus = get_cell_center(i + 1, n);
-	pair<double, double> res = make_pair(
-		center_i.first + delta * (center_i_plus.first - center_i.first),
-		center_i.second + delta * (center_i_plus.second - center_i.second)
-	);
-
-	return res;
-}
 
 double f(span<const double> y) {
 	return (y[0] - 6) * (y[0] - 6) + (y[1] - 4) * (y[1] - 4);
 }
 
-double f(pair<double, double> dot) {
-	double x = dot.first;
-	double y = dot.second;
-	return (x - 6) * (x - 6) + (y - 4) * (y - 4);
+double rastrigin(span<const double> y) {
+	const int N = y.size();
+	const double A = 10.0;
+	double res = A * N;
+	for (int i = 0; i < N; i++) {
+		res += (y[i] * y[i] - A * cos(2 * numbers::pi * y[i]));
+	}
+	return res;
 }
 
-pair<double, double> to_box(double x, long long n,
-	double x_min, double x_max, double y_min, double y_max) {
-	auto p = snake(x, n);
-	return { x_min + p.first * (x_max - x_min),
-			 y_min + p.second * (y_max - y_min) };
-}
-
-info AGP(TEvolvent& ev,
-	double (*func)(span<const double>), double r, double E, int ITERMAX, int SLOWINGITERS, long long n) {
+info AGP(TEvolvent& ev, const function<double(span<const double>)>& func, double r, double E, int ITERMAX) {
 	// инициализация
 	const double a = 0, b = 1;
-	E /= n;
+	const int N = ev.GetDimension();
+	auto delta = [N](double left, double right) { return pow(right - left, 1.0 / N); };
 
 	map<double, double> funcValue; // мапа из аргумента в значение функции 
 
-	double left_dot[] = { 0, 0 };
-	double right_dot[] = { 0, 0 };
-	ev.GetImage(a, left_dot);
-	ev.GetImage(b, right_dot);
+	vector<double> left_dot(N);
+	vector<double> right_dot(N);
+	ev.GetImage(a, left_dot.data());
+	ev.GetImage(b, right_dot.data());
 
-
-	double firstM = fabs((func(right_dot) - func(left_dot)) / (b - a));
 	funcValue[a] = func(left_dot);
 	funcValue[b] = func(right_dot);
 
 	double rightFuncVal = funcValue[b], leftFuncVal = funcValue[a];
-	double M = fabs((rightFuncVal - leftFuncVal) / (b - a));
+	double M = fabs(rightFuncVal - leftFuncVal) / delta(a, b);
 	double m;
 	double prevm = 0;
 
@@ -119,8 +67,8 @@ info AGP(TEvolvent& ev,
 
 	pqueue<RInfo> Rqueue;
 
-	double firstR = m * (b - a);
-	firstR += (rightFuncVal - leftFuncVal) * (rightFuncVal - leftFuncVal) / (m * (b - a));
+	double firstR = m * delta(a, b);
+	firstR += (rightFuncVal - leftFuncVal) * (rightFuncVal - leftFuncVal) / (m * delta(a, b));
 	firstR -= 2 * (rightFuncVal + leftFuncVal);
 	Rqueue.insert({ firstR, a });
 
@@ -130,21 +78,23 @@ info AGP(TEvolvent& ev,
 		RInfo maxInfo = Rqueue.get();
 		double ldot = maxInfo.arg; // левая граница подразбиваемого интервала
 		double rdot = (*next(funcValue.find(ldot))).first; // правая граница подразбиваемого интервала
-		double newDot = 0.5 * (rdot + ldot) - (funcValue[rdot] - funcValue[ldot]) * 0.5 / m;
+		double dz = funcValue[rdot] - funcValue[ldot];
+		double mu = m / r;                       // the estimate itself, without r
+		double newDot = 0.5 * (rdot + ldot) - ((dz > 0) - (dz < 0)) * pow(fabs(dz) / mu, N) / (2 * r);
 
-		double newNDimDot[] = { 0, 0 };
-		ev.GetImage(newDot, newNDimDot);
+		vector<double> newNDimDot(N);
+		ev.GetImage(newDot, newNDimDot.data());
 		funcValue[newDot] = func(newNDimDot);
 
-		if ((rdot - newDot) < E || (newDot - ldot) < E)
+		if (pow(rdot - newDot, 1.0 / N) < E || pow(newDot - ldot, 1.0 / N) < E)
 			break;
 
 		// Пересчет M для нового интервала
 		ldot = maxInfo.arg;
 		double mdot = (*next(funcValue.find(ldot))).first;
 		rdot = (*next(funcValue.find(mdot))).first;
-		double Mcandidate1 = fabs((funcValue[mdot] - (funcValue[ldot])) / (mdot - ldot));
-		double Mcandidate2 = fabs((funcValue[rdot] - (funcValue[mdot])) / (rdot - mdot));
+		double Mcandidate1 = fabs(funcValue[mdot] - funcValue[ldot]) / delta(ldot, mdot);
+		double Mcandidate2 = fabs(funcValue[rdot] - funcValue[mdot]) / delta(mdot, rdot);
 		M = max({ M,Mcandidate1,Mcandidate2 });
 
 		if (M > 0) {
@@ -160,12 +110,12 @@ info AGP(TEvolvent& ev,
 
 			Rqueue.clear();
 			for (int i = 0; i < funcValue.size() - 1; i++) {
-				double ldot = (*prev).first, rdot = (*cur).first;
-				double lval = funcValue[ldot], rval = funcValue[rdot];
-				double newR = m * (rdot - ldot)
-					+ (rval - lval) * (rval - lval) / (m * (rdot - ldot))
+				double leftdot = (*prev).first, rightdot = (*cur).first;
+				double lval = funcValue[leftdot], rval = funcValue[rightdot];
+				double newR = m * delta(leftdot, rightdot)
+					+ (rval - lval) * (rval - lval) / (m * delta(leftdot, rightdot))
 					- 2 * (rval + lval);
-				Rqueue.insert({ newR, ldot });
+				Rqueue.insert({ newR, leftdot });
 				prev = next(prev);
 				cur = next(cur);
 			}
@@ -177,17 +127,13 @@ info AGP(TEvolvent& ev,
 			double mArg = newDot; // этот аргумент только что появился, для него нужно посчитать R
 			double rArg = (*next(funcValue.find(newDot))).first; // правая граница нового интервала
 
-			double RToRecalculate1 = m * (rArg - lArg)
-				+ (funcValue[rArg] - funcValue[lArg]) * (funcValue[rArg] - funcValue[lArg]) / (m * (rArg - lArg))
-				- 2 * (funcValue[rArg] + funcValue[lArg]);
-
 			Rqueue.pop();
 
-			double newR1 = m * (mArg - lArg)
-				+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * (mArg - lArg))
+			double newR1 = m * delta(lArg, mArg)
+				+ (funcValue[mArg] - funcValue[lArg]) * (funcValue[mArg] - funcValue[lArg]) / (m * delta(lArg, mArg))
 				- 2 * (funcValue[mArg] + funcValue[lArg]);
-			double newR2 = m * (rArg - mArg)
-				+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * (rArg - mArg))
+			double newR2 = m * delta(mArg, rArg)
+				+ (funcValue[rArg] - funcValue[mArg]) * (funcValue[rArg] - funcValue[mArg]) / (m * delta(mArg, rArg))
 				- 2 * (funcValue[rArg] + funcValue[mArg]);
 
 			Rqueue.insert({ newR1, lArg });
@@ -221,29 +167,37 @@ info AGP(TEvolvent& ev,
 
 
 int main() {
-	TEvolvent ev(2, 10);
-	double A[] = { -8, -30 }, B[] = { 8, 30 };
-	ev.SetBounds(A, B);
+	try {
+		const int N = 2, m = 14;
+		double E = 0.0001;
+		double x_min = -8, x_max = 8;
+		double y_min = -30, y_max = 30;
+		double A[] = { x_min, y_min }, B[] = { x_max , y_max };
 
-	double E = 0.01;
-	double x_min = -8, x_max = 8;
-	double y_min = -30, y_max = 30;
-	double x_len = x_max - x_min;
-	double y_len = y_max - y_min;
-	long long n = (long long)ceil(max(x_len, y_len) / (2.0 * E)) + 1;
-	auto res = AGP(
-		ev,
-		f,
-		2.0,
-		E,
-		1000,
-		0,
-		n
-	);
-	std::cout << std::fixed;
+		TEvolvent ev(N, m);
+		ev.SetBounds(A, B);
 
-	double resDot[2];
-	ev.GetImage(res.extremumArg, resDot);
-	cout << resDot[0] << " " << resDot[1];
+
+		int number_of_calls = 0;
+
+		auto res = AGP(
+			ev,
+			[&number_of_calls](span<const double> x) { ++number_of_calls; return rastrigin(x); },
+			2.0,
+			E,
+			3000
+		);
+		std::cout << std::fixed;
+
+		vector<double> resDot(N);
+		ev.GetImage(res.extremumArg, resDot.data());
+		cout << resDot[0] << " " << resDot[1] << "\n";
+		cout << res.iterCount << "\n";
+		cout << number_of_calls;
+	}
+	catch (const char* msg) {
+		cerr << "Error: " << msg << "\n";
+		return 1;
+	}
 	return 0;
 }
