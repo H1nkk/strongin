@@ -27,7 +27,7 @@ protected:
   double   A[MaxDim];     // left and
   double   B[MaxDim];     // right bounds of search area
 
-  const int MaxM = 10;
+  const int MaxM = 20;
 
   double*  y;             // y point from hypercube [-1/2, 1/2]^N
 
@@ -48,6 +48,7 @@ public:
   void SetBounds(const double* _A, const double* _B);
   virtual void GetImage(const double& x, double* _y, int EvolventNum = 0);
   virtual void GetPreimages(double* _y, double *x);
+  int GetDimension() const;
 };
 
 #endif
